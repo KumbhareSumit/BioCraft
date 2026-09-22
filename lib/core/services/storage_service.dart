@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_constants.dart';
 import '../../features/biodata_creator/data/models/biodata_model.dart';
 import '../../features/invitation_creator/data/models/invitation_model.dart';
+import '../../features/resume_creator/data/models/resume_model.dart';
 
 class StorageService {
   static StorageService? _instance;
@@ -71,6 +72,35 @@ class StorageService {
     list.removeWhere((item) => item.id == id);
     await _prefs?.setStringList(
       AppConstants.keySavedInvitations,
+      list.map((e) => e.toJson()).toList(),
+    );
+  }
+
+  // Resumes
+  Future<List<ResumeModel>> getSavedResumes() async {
+    final raw = _prefs?.getStringList(AppConstants.keySavedResumes) ?? [];
+    return raw.map((item) => ResumeModel.fromJson(item)).toList();
+  }
+
+  Future<void> saveResume(ResumeModel resume) async {
+    final list = await getSavedResumes();
+    final index = list.indexWhere((item) => item.id == resume.id);
+    if (index >= 0) {
+      list[index] = resume;
+    } else {
+      list.insert(0, resume);
+    }
+    await _prefs?.setStringList(
+      AppConstants.keySavedResumes,
+      list.map((e) => e.toJson()).toList(),
+    );
+  }
+
+  Future<void> deleteResume(String id) async {
+    final list = await getSavedResumes();
+    list.removeWhere((item) => item.id == id);
+    await _prefs?.setStringList(
+      AppConstants.keySavedResumes,
       list.map((e) => e.toJson()).toList(),
     );
   }

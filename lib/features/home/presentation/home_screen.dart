@@ -7,6 +7,10 @@ import '../../../core/utils/responsive_helper.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../biodata_creator/data/models/biodata_model.dart';
 import '../../biodata_creator/logic/biodata_provider.dart';
+import '../../invitation_creator/data/models/invitation_model.dart';
+import '../../invitation_creator/logic/invitation_provider.dart';
+import '../../resume_creator/data/models/resume_model.dart';
+import '../../resume_creator/logic/resume_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,13 +21,21 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedCategoryIndex = 0;
-  final List<String> _categories = ['All Templates', 'Royal & Classic', 'Floral Elegance', 'Modern Minimal'];
+
+  final List<String> _categories = [
+    'All Templates',
+    '💍 Marriage Biodata',
+    '💌 Invitations & Cards',
+    '📄 Resumes & CVs',
+  ];
 
   final List<Map<String, dynamic>> _templateCatalog = [
+    // Biodatas
     {
       'id': 'royal_gold',
+      'type': 'biodata',
       'title': 'Royal Gold Heritage',
-      'category': 'Royal & Classic',
+      'category': '💍 Marriage Biodata',
       'badge': 'Most Popular',
       'badgeColor': AppColors.secondaryDark,
       'description': 'Opulent gold borders, ornate traditional motifs, and regal serif typography.',
@@ -32,8 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'id': 'floral_elegance',
-      'title': 'Floral Elegance',
-      'category': 'Floral Elegance',
+      'type': 'biodata',
+      'title': 'Floral Bloom',
+      'category': '💍 Marriage Biodata',
       'badge': 'Trending',
       'badgeColor': const Color(0xFFE56B6F),
       'description': 'Soft pastel watercolor floral accents, gentle tones, and modern calligraphy.',
@@ -42,8 +55,9 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'id': 'modern_minimal',
+      'type': 'biodata',
       'title': 'Modern Minimalist',
-      'category': 'Modern Minimal',
+      'category': '💍 Marriage Biodata',
       'badge': 'Clean & Crisp',
       'badgeColor': const Color(0xFF1D3557),
       'description': 'Contemporary clean layout with clear visual hierarchy and sharp aesthetics.',
@@ -52,13 +66,95 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'id': 'vintage_traditional',
-      'title': 'Vintage Traditional',
-      'category': 'Royal & Classic',
+      'type': 'biodata',
+      'title': 'Traditional Classic',
+      'category': '💍 Marriage Biodata',
       'badge': 'Classic',
       'badgeColor': const Color(0xFFB07D62),
       'description': 'Authentic traditional layout with horoscope kundli section and cultural symbols.',
       'icon': Icons.history_edu,
       'color': const Color(0xFFB07D62),
+    },
+
+    // Invitations
+    {
+      'id': 'royal_wedding',
+      'type': 'invitation',
+      'title': 'Royal Wedding Card',
+      'category': '💌 Invitations & Cards',
+      'badge': 'Luxury Foil',
+      'badgeColor': const Color(0xFFD4AF37),
+      'description': 'Regal burgundy & gold foil borders, mandap motifs, and traditional fonts.',
+      'icon': Icons.favorite,
+      'color': const Color(0xFF8B1E3F),
+    },
+    {
+      'id': 'floral_festive',
+      'type': 'invitation',
+      'title': 'Festive Floral & Griha Pravesh',
+      'category': '💌 Invitations & Cards',
+      'badge': 'Festive',
+      'badgeColor': const Color(0xFFD97706),
+      'description': 'Pastel floral accents ideal for Engagements, Housewarming, and Anniversaries.',
+      'icon': Icons.home_outlined,
+      'color': const Color(0xFFD97706),
+    },
+    {
+      'id': 'modern_party',
+      'type': 'invitation',
+      'title': 'Birthday & Party Pass',
+      'category': '💌 Invitations & Cards',
+      'badge': 'Vibrant',
+      'badgeColor': const Color(0xFFE11D48),
+      'description': 'Neon confetti & dark midnight layout for Birthday, Gathering, and Launch parties.',
+      'icon': Icons.celebration,
+      'color': const Color(0xFFE11D48),
+    },
+    {
+      'id': 'minimal_chic',
+      'type': 'invitation',
+      'title': 'Minimal Chic Event Card',
+      'category': '💌 Invitations & Cards',
+      'badge': 'Modern',
+      'badgeColor': const Color(0xFF475569),
+      'description': 'Crisp typography and balanced geometry for conferences, receptions, and dinners.',
+      'icon': Icons.mail_outline,
+      'color': const Color(0xFF334155),
+    },
+
+    // Resumes
+    {
+      'id': 'modern_tech',
+      'type': 'resume',
+      'title': 'Modern Tech & Mobile CV',
+      'category': '📄 Resumes & CVs',
+      'badge': 'Tech Pro',
+      'badgeColor': const Color(0xFF2563EB),
+      'description': 'Two-column layout with skills sidebar, experience timeline, and project links.',
+      'icon': Icons.code,
+      'color': const Color(0xFF1E3A8A),
+    },
+    {
+      'id': 'executive_clean',
+      'type': 'resume',
+      'title': 'Executive Corporate ATS',
+      'category': '📄 Resumes & CVs',
+      'badge': 'ATS-Friendly',
+      'badgeColor': const Color(0xFF059669),
+      'description': 'Single-column clean corporate layout with elegant headers for senior roles.',
+      'icon': Icons.business_center,
+      'color': const Color(0xFF0F172A),
+    },
+    {
+      'id': 'creative_minimal',
+      'type': 'resume',
+      'title': 'Creative Minimalist Resume',
+      'category': '📄 Resumes & CVs',
+      'badge': 'Design Pro',
+      'badgeColor': const Color(0xFF7C3AED),
+      'description': 'Profile card header, colored accent bars, and balanced skill chips.',
+      'icon': Icons.palette,
+      'color': const Color(0xFF7C3AED),
     },
   ];
 
@@ -66,7 +162,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final isDesktop = ResponsiveHelper.isDesktop(context);
     final bioProvider = context.watch<BiodataProvider>();
-    final savedDrafts = bioProvider.savedBiodatas;
+    final invProvider = context.watch<InvitationProvider>();
+    final resProvider = context.watch<ResumeProvider>();
+
+    final bioDrafts = bioProvider.savedBiodatas;
+    final invDrafts = invProvider.savedInvitations;
+    final resDrafts = resProvider.savedResumes;
+    final hasAnyDrafts = bioDrafts.isNotEmpty || invDrafts.isNotEmpty || resDrafts.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -94,6 +196,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           IconButton(
+            tooltip: 'Live Studio',
+            icon: const Icon(Icons.palette_outlined, color: AppColors.primary),
+            onPressed: () => context.push('/preview-studio'),
+          ),
+          IconButton(
             tooltip: 'About & Features',
             icon: const Icon(Icons.info_outline),
             onPressed: () => _showAboutDialog(context),
@@ -110,17 +217,20 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeroBanner(context),
+                const SizedBox(height: 24),
+
+                _buildStudioLaunchCards(context, bioProvider, invProvider, resProvider),
                 const SizedBox(height: 28),
 
-                if (savedDrafts.isNotEmpty) ...[
-                  _buildSavedDraftsSection(savedDrafts, bioProvider),
+                if (hasAnyDrafts) ...[
+                  _buildSavedDraftsHub(context, bioProvider, invProvider, resProvider),
                   const SizedBox(height: 32),
                 ],
 
                 _buildCategoryTabs(),
                 const SizedBox(height: 20),
 
-                _buildTemplatesGrid(bioProvider),
+                _buildTemplatesGrid(bioProvider, invProvider, resProvider),
                 const SizedBox(height: 40),
 
                 _buildFeatureHighlights(),
@@ -151,101 +261,186 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(26),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.secondary.withValues(alpha: 0.25),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.secondary, width: 1),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.secondary.withValues(alpha: 0.25),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.secondary, width: 1),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.verified, color: AppColors.secondaryLight, size: 14),
+                const SizedBox(width: 6),
+                Text(
+                  '100% Free & Offline Document Studio',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.verified, color: AppColors.secondaryLight, size: 14),
-                    const SizedBox(width: 6),
-                    Text(
-                      '100% Free & Offline Biodata Maker',
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Text(
-            'Create Stunning Marriage\nBiodatas in Minutes',
+            'All-In-One Document &\nInvitation Studio',
             style: GoogleFonts.cinzel(
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: FontWeight.bold,
               color: Colors.white,
               height: 1.25,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
-            'Choose from premium royal, floral, and modern minimalist templates. Export in print-ready Vector PDF & High-Res PNG with zero watermarks.',
+            'Create marriage biodatas, elegant event invitation cards, and professional job resumes with zero fees, watermarks, or accounts.',
             style: GoogleFonts.outfit(
-              fontSize: 14,
+              fontSize: 13.5,
               color: Colors.white.withValues(alpha: 0.9),
               height: 1.4,
             ),
-          ),
-          const SizedBox(height: 22),
-          Wrap(
-            spacing: 12,
-            runSpacing: 10,
-            children: [
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.secondary,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 2,
-                ),
-                onPressed: () {
-                  context.read<BiodataProvider>().createNewBiodata();
-                  context.push('/create-biodata');
-                },
-                icon: const Icon(Icons.add, size: 20),
-                label: Text(
-                  'Create Biodata Now',
-                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15),
-                ),
-              ),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.white70, width: 1.5),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: () => context.push('/preview-biodata'),
-                icon: const Icon(Icons.visibility_outlined, size: 18),
-                label: Text(
-                  'Live Preview Studio',
-                  style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 15),
-                ),
-              ),
-            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSavedDraftsSection(List<BiodataModel> drafts, BiodataProvider bioProvider) {
+  Widget _buildStudioLaunchCards(
+    BuildContext context,
+    BiodataProvider bioProvider,
+    InvitationProvider invProvider,
+    ResumeProvider resProvider,
+  ) {
+    final isDesktop = ResponsiveHelper.isDesktop(context);
+
+    final studios = [
+      {
+        'title': 'Marriage Biodata',
+        'subtitle': '4 Royal & Floral Templates',
+        'icon': '💍',
+        'gradient': [const Color(0xFF8B1E3F), const Color(0xFF5A0E24)],
+        'onTap': () {
+          bioProvider.createNewBiodata();
+          context.push('/create-biodata');
+        },
+      },
+      {
+        'title': 'Invitation Cards',
+        'subtitle': 'Wedding, Birthday & Pooja',
+        'icon': '💌',
+        'gradient': [const Color(0xFFD97706), const Color(0xFF92400E)],
+        'onTap': () {
+          invProvider.createNewInvitation();
+          context.push('/create-invitation');
+        },
+      },
+      {
+        'title': 'Job Resume & CV',
+        'subtitle': 'Tech & Corporate ATS Formats',
+        'icon': '📄',
+        'gradient': [const Color(0xFF1E3A8A), const Color(0xFF172554)],
+        'onTap': () {
+          resProvider.createNewResume();
+          context.push('/create-resume');
+        },
+      },
+    ];
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: isDesktop ? 3 : (ResponsiveHelper.isTablet(context) ? 3 : 1),
+        crossAxisSpacing: 14,
+        mainAxisSpacing: 12,
+        childAspectRatio: isDesktop ? 2.8 : (ResponsiveHelper.isTablet(context) ? 2.2 : 4.6),
+      ),
+      itemCount: studios.length,
+      itemBuilder: (context, index) {
+        final s = studios[index];
+        final gradient = s['gradient'] as List<Color>;
+
+        return InkWell(
+          onTap: s['onTap'] as VoidCallback,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: gradient,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: gradient.first.withValues(alpha: 0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(s['icon'] as String, style: const TextStyle(fontSize: 20)),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        s['title'] as String,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.outfit(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        s['subtitle'] as String,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.outfit(
+                          fontSize: 11,
+                          color: Colors.white.withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.white70),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSavedDraftsHub(
+    BuildContext context,
+    BiodataProvider bioProvider,
+    InvitationProvider invProvider,
+    ResumeProvider resProvider,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -260,72 +455,141 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: AppColors.textPrimary,
               ),
             ),
-            Text(
-              '${drafts.length} draft(s)',
-              style: GoogleFonts.outfit(fontSize: 13, color: AppColors.textSecondary),
+            TextButton(
+              onPressed: () => context.push('/preview-studio'),
+              child: const Text('Open Studio', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
+
+        // Saved Biodatas
+        if (bioProvider.savedBiodatas.isNotEmpty) ...[
+          _buildDraftSubSection<BiodataModel>(
+            title: '💍 Saved Biodatas',
+            drafts: bioProvider.savedBiodatas,
+            getName: (d) => d.fullName.isNotEmpty ? d.fullName : 'Untitled Biodata',
+            getTag: (d) => d.templateId.replaceAll('_', ' ').toUpperCase(),
+            onEdit: (d) {
+              bioProvider.loadBiodata(d);
+              context.push('/create-biodata');
+            },
+            onPreview: (d) {
+              bioProvider.loadBiodata(d);
+              context.push('/preview-studio?category=biodata');
+            },
+            onDelete: (d) => bioProvider.deleteBiodata(d.id),
+          ),
+          const SizedBox(height: 14),
+        ],
+
+        // Saved Invitations
+        if (invProvider.savedInvitations.isNotEmpty) ...[
+          _buildDraftSubSection<InvitationModel>(
+            title: '💌 Saved Invitations',
+            drafts: invProvider.savedInvitations,
+            getName: (d) => d.eventTitle.isNotEmpty ? d.eventTitle : 'Untitled Invitation',
+            getTag: (d) => d.eventType.toUpperCase(),
+            onEdit: (d) {
+              invProvider.loadInvitation(d);
+              context.push('/create-invitation');
+            },
+            onPreview: (d) {
+              invProvider.loadInvitation(d);
+              context.push('/preview-studio?category=invitation');
+            },
+            onDelete: (d) => invProvider.deleteInvitation(d.id),
+          ),
+          const SizedBox(height: 14),
+        ],
+
+        // Saved Resumes
+        if (resProvider.savedResumes.isNotEmpty) ...[
+          _buildDraftSubSection<ResumeModel>(
+            title: '📄 Saved Resumes / CVs',
+            drafts: resProvider.savedResumes,
+            getName: (d) => d.fullName.isNotEmpty ? '${d.fullName} (Resume)' : 'Untitled Resume',
+            getTag: (d) => d.templateId.replaceAll('_', ' ').toUpperCase(),
+            onEdit: (d) {
+              resProvider.loadResume(d);
+              context.push('/create-resume');
+            },
+            onPreview: (d) {
+              resProvider.loadResume(d);
+              context.push('/preview-studio?category=resume');
+            },
+            onDelete: (d) => resProvider.deleteResume(d.id),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildDraftSubSection<T>({
+    required String title,
+    required List<T> drafts,
+    required String Function(T) getName,
+    required String Function(T) getTag,
+    required void Function(T) onEdit,
+    required void Function(T) onPreview,
+    required void Function(T) onDelete,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+        const SizedBox(height: 8),
         SizedBox(
-          height: 130,
+          height: 110,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: drafts.length,
             separatorBuilder: (_, _) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
-              final draft = drafts[index];
-              final title = draft.fullName.isNotEmpty ? draft.fullName : 'Untitled Biodata';
+              final item = drafts[index];
+              final draftName = getName(item);
+              final tag = getTag(item);
 
               return Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () {
-                    bioProvider.loadBiodata(draft);
-                    context.push('/create-biodata');
-                  },
-                  borderRadius: BorderRadius.circular(14),
+                  onTap: () => onEdit(item),
+                  borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    width: 270,
+                    width: 260,
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.border),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 8,
+                          blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundColor: Color(draft.primaryColorValue).withValues(alpha: 0.15),
-                              child: Icon(Icons.person, color: Color(draft.primaryColorValue), size: 18),
-                            ),
-                            const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                title,
+                                draftName,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                               ),
                             ),
                             IconButton(
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
-                              icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.error),
-                              onPressed: () => bioProvider.deleteBiodata(draft.id),
-                              tooltip: 'Delete Draft',
+                              icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.error),
+                              onPressed: () => onDelete(item),
+                              tooltip: 'Delete',
                             ),
                           ],
                         ),
@@ -339,8 +603,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                draft.templateId.replaceAll('_', ' ').toUpperCase(),
-                                style: const TextStyle(fontSize: 10, color: AppColors.textSecondary, fontWeight: FontWeight.bold),
+                                tag,
+                                style: const TextStyle(fontSize: 9, color: AppColors.textSecondary, fontWeight: FontWeight.bold),
                               ),
                             ),
                             Row(
@@ -349,25 +613,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                 IconButton(
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(),
-                                  icon: const Icon(Icons.visibility_outlined, size: 18, color: AppColors.textSecondary),
+                                  icon: const Icon(Icons.visibility_outlined, size: 16, color: AppColors.textSecondary),
                                   tooltip: 'Preview',
-                                  onPressed: () {
-                                    bioProvider.loadBiodata(draft);
-                                    context.push('/preview-biodata');
-                                  },
+                                  onPressed: () => onPreview(item),
                                 ),
-                                const SizedBox(width: 6),
-                                TextButton.icon(
+                                const SizedBox(width: 4),
+                                TextButton(
                                   style: TextButton.styleFrom(
                                     visualDensity: VisualDensity.compact,
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   ),
-                                  icon: const Icon(Icons.edit_outlined, size: 14),
-                                  label: const Text('Edit', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                  onPressed: () {
-                                    bioProvider.loadBiodata(draft);
-                                    context.push('/create-biodata');
-                                  },
+                                  onPressed: () => onEdit(item),
+                                  child: const Text('Edit', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                                 ),
                               ],
                             ),
@@ -414,7 +671,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTemplatesGrid(BiodataProvider bioProvider) {
+  Widget _buildTemplatesGrid(
+    BiodataProvider bioProvider,
+    InvitationProvider invProvider,
+    ResumeProvider resProvider,
+  ) {
     final selectedCategory = _categories[_selectedCategoryIndex];
     final filtered = selectedCategory == 'All Templates'
         ? _templateCatalog
@@ -424,7 +685,7 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Featured Biodata Templates',
+          'Featured Design Templates',
           style: GoogleFonts.outfit(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -444,14 +705,21 @@ class _HomeScreenState extends State<HomeScreen> {
           itemCount: filtered.length,
           itemBuilder: (context, index) {
             final t = filtered[index];
-            return _buildTemplateCard(t, bioProvider);
+            return _buildTemplateCard(t, bioProvider, invProvider, resProvider);
           },
         ),
       ],
     );
   }
 
-  Widget _buildTemplateCard(Map<String, dynamic> item, BiodataProvider bioProvider) {
+  Widget _buildTemplateCard(
+    Map<String, dynamic> item,
+    BiodataProvider bioProvider,
+    InvitationProvider invProvider,
+    ResumeProvider resProvider,
+  ) {
+    final type = item['type'] as String;
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -487,7 +755,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              Icon(item['icon'], color: item['color'], size: 24),
+              Icon(item['icon'] as IconData, color: item['color'], size: 24),
             ],
           ),
           const SizedBox(height: 14),
@@ -515,13 +783,31 @@ class _HomeScreenState extends State<HomeScreen> {
             text: 'Use Template',
             icon: Icons.edit_outlined,
             onPressed: () {
-              bioProvider.updateBiodata(
-                bioProvider.currentBiodata.copyWith(
-                  templateId: item['id'],
-                  primaryColorValue: (item['color'] as Color).toARGB32(),
-                ),
-              );
-              context.push('/create-biodata');
+              if (type == 'biodata') {
+                bioProvider.updateBiodata(
+                  bioProvider.currentBiodata.copyWith(
+                    templateId: item['id'],
+                    primaryColorValue: (item['color'] as Color).toARGB32(),
+                  ),
+                );
+                context.push('/create-biodata');
+              } else if (type == 'invitation') {
+                invProvider.updateInvitation(
+                  invProvider.currentInvitation.copyWith(
+                    templateId: item['id'],
+                    primaryColorValue: (item['color'] as Color).toARGB32(),
+                  ),
+                );
+                context.push('/create-invitation');
+              } else {
+                resProvider.updateResume(
+                  resProvider.currentResume.copyWith(
+                    templateId: item['id'],
+                    primaryColorValue: (item['color'] as Color).toARGB32(),
+                  ),
+                );
+                context.push('/create-resume');
+              }
             },
           ),
         ],
@@ -531,10 +817,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildFeatureHighlights() {
     final features = [
-      {'icon': Icons.lock_outline, 'title': '100% Private', 'subtitle': 'All data stays on your device'},
-      {'icon': Icons.picture_as_pdf, 'title': 'Vector PDF', 'subtitle': 'Crystal clear print output'},
-      {'icon': Icons.block, 'title': 'No Watermark', 'subtitle': 'Completely free & unrestricted'},
-      {'icon': Icons.share, 'title': 'Quick Share', 'subtitle': 'Send directly on WhatsApp'},
+      {'icon': Icons.lock_outline, 'title': '100% Private', 'subtitle': 'All data stays securely on your device'},
+      {'icon': Icons.picture_as_pdf, 'title': 'Vector PDF Export', 'subtitle': 'Crystal clear print output at 300+ DPI'},
+      {'icon': Icons.block, 'title': 'Zero Watermarks', 'subtitle': 'Completely free & unrestricted forever'},
+      {'icon': Icons.share, 'title': 'One-Tap Sharing', 'subtitle': 'Send directly via WhatsApp or Email'},
     ];
 
     return Container(
@@ -548,7 +834,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Why Choose BioCraft?',
+            'Why Choose BioCraft Studio?',
             style: GoogleFonts.cinzel(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           ),
           const SizedBox(height: 16),
@@ -616,7 +902,7 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'BioCraft is an offline, cross-platform matrimonial biodata & invitation maker created to empower families and candidates with elegant design templates without fees, subscriptions, or watermarks.',
+              'BioCraft is an offline, cross-platform matrimonial biodata, event invitation card, and professional resume maker designed to empower users with elegant design templates without fees, subscriptions, or watermarks.',
               style: TextStyle(fontSize: 14, height: 1.4),
             ),
             SizedBox(height: 12),

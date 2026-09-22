@@ -4,6 +4,7 @@ import 'app/routes/app_router.dart';
 import 'app/theme/app_theme.dart';
 import 'features/biodata_creator/logic/biodata_provider.dart';
 import 'features/invitation_creator/logic/invitation_provider.dart';
+import 'features/resume_creator/logic/resume_provider.dart';
 import 'features/preview_studio/logic/preview_provider.dart';
 
 void main() async {
@@ -20,10 +21,11 @@ class BioCraftApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => BiodataProvider()),
         ChangeNotifierProvider(create: (_) => InvitationProvider()),
+        ChangeNotifierProvider(create: (_) => ResumeProvider()),
         ChangeNotifierProvider(create: (_) => PreviewProvider()),
       ],
       child: MaterialApp.router(
-        title: 'BioCraft - Biodata & Invitation Maker',
+        title: 'BioCraft - Biodata, Invitation & Resume Studio',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,

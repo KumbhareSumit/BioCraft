@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,16 +11,28 @@ import '../../../core/services/share_service.dart';
 import '../../../core/utils/responsive_helper.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/color_picker_widget.dart';
-import '../../biodata_creator/data/models/biodata_model.dart';
 import '../../biodata_creator/logic/biodata_provider.dart';
+import '../../invitation_creator/logic/invitation_provider.dart';
+import '../../resume_creator/logic/resume_provider.dart';
 import '../../templates/biodata/floral_elegance_template.dart';
 import '../../templates/biodata/modern_minimal_template.dart';
 import '../../templates/biodata/royal_gold_template.dart';
 import '../../templates/biodata/vintage_traditional_template.dart';
+import '../../templates/invitation/floral_festive_card.dart';
+import '../../templates/invitation/minimal_chic_card.dart';
+import '../../templates/invitation/modern_party_card.dart';
+import '../../templates/invitation/royal_wedding_card.dart';
+import '../../templates/resume/creative_minimal_resume.dart';
+import '../../templates/resume/executive_clean_resume.dart';
+import '../../templates/resume/modern_tech_resume.dart';
 import '../logic/preview_provider.dart';
 
+enum StudioCategory { biodata, invitation, resume }
+
 class PreviewStudioScreen extends StatefulWidget {
-  const PreviewStudioScreen({super.key});
+  final String? initialCategory;
+
+  const PreviewStudioScreen({super.key, this.initialCategory});
 
   @override
   State<PreviewStudioScreen> createState() => _PreviewStudioScreenState();
@@ -29,48 +42,63 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
   final GlobalKey _previewContainerKey = GlobalKey();
   final TransformationController _transformController = TransformationController();
 
-  final List<Map<String, String>> _templates = [
+  late StudioCategory _selectedCategory;
+
+  final List<Map<String, String>> _biodataTemplates = [
     {'id': 'royal_gold', 'name': 'Royal Gold', 'icon': '👑'},
-    {'id': 'floral_elegance', 'name': 'Floral Elegance', 'icon': '🌸'},
+    {'id': 'floral_elegance', 'name': 'Floral Bloom', 'icon': '🌸'},
     {'id': 'modern_minimal', 'name': 'Modern Minimal', 'icon': '✨'},
-    {'id': 'vintage_traditional', 'name': 'Vintage Classic', 'icon': '📜'},
+    {'id': 'vintage_traditional', 'name': 'Traditional Classic', 'icon': '📜'},
   ];
 
-  final List<String> _religionHeadings = [
-    '॥ श्री गणेशाय नमः ॥',
-    '॥ श्री महालक्ष्मी प्रसन्न ॥',
-    '॥ ॐ नमः शिवाय ॥',
-    '॥ श्री कुलदेवतायै नमः ॥',
-    'ੴ ਸਤਿਗੁਰ ਪ੍ਰਸਾਦਿ',
-    'In the Name of Allah, Most Gracious',
-    '|| Jai Jinendra ||',
-    '✝ God Bless This Union ✝',
-    '',
+  final List<Map<String, String>> _invitationTemplates = [
+    {'id': 'royal_wedding', 'name': 'Royal Wedding', 'icon': '💍'},
+    {'id': 'floral_festive', 'name': 'Festive Floral', 'icon': '🌸'},
+    {'id': 'modern_party', 'name': 'Party & Birthday', 'icon': '🎉'},
+    {'id': 'minimal_chic', 'name': 'Minimal Chic', 'icon': '✨'},
   ];
 
-  Future<void> _exportPdf(BiodataModel biodata) async {
+  final List<Map<String, String>> _resumeTemplates = [
+    {'id': 'modern_tech', 'name': 'Modern Tech', 'icon': '💻'},
+    {'id': 'executive_clean', 'name': 'Executive ATS', 'icon': '👔'},
+    {'id': 'creative_minimal', 'name': 'Creative Pro', 'icon': '🎨'},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialCategory == 'invitation') {
+      _selectedCategory = StudioCategory.invitation;
+    } else if (widget.initialCategory == 'resume') {
+      _selectedCategory = StudioCategory.resume;
+    } else {
+      _selectedCategory = StudioCategory.biodata;
+    }
+  }
+
+  Future<void> _exportPdf() async {
     final previewProvider = context.read<PreviewProvider>();
     previewProvider.setIsExporting(true);
     try {
-      // Capture the exact on-screen rendered template at ultra high-res (3.5x ratio)
       final imageBytes = await ImageExporter.captureWidgetAsImage(
         _previewContainerKey,
         pixelRatio: 3.5,
       );
 
+      final String docTitle = _getDocTitle();
       final pdfBytes = imageBytes != null
           ? await PdfGenerator.generatePdfFromRenderedImage(imageBytes)
-          : await PdfGenerator.generateBiodataPdf(biodata);
+          : await _generateFallbackPdf();
 
       await Printing.layoutPdf(
         onLayout: (format) async => pdfBytes,
-        name: '${biodata.fullName.isNotEmpty ? biodata.fullName.replaceAll(' ', '_') : 'Biodata'}.pdf',
+        name: '$docTitle.pdf',
       );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('PDF ready for printing and download!'),
+            content: Text('Document ready for download and printing!'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -79,7 +107,7 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to generate PDF: $e'),
+            content: Text('Failed to export PDF: $e'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -89,16 +117,17 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
     }
   }
 
-  Future<void> _exportImage(BiodataModel biodata) async {
+  Future<void> _exportImage() async {
     final previewProvider = context.read<PreviewProvider>();
     previewProvider.setIsExporting(true);
     try {
       final imageBytes = await ImageExporter.captureWidgetAsImage(_previewContainerKey, pixelRatio: 3.5);
       if (imageBytes != null) {
+        final docTitle = _getDocTitle();
         await ShareService.shareImage(
           imageBytes,
-          filename: '${biodata.fullName.isNotEmpty ? biodata.fullName.replaceAll(' ', '_') : 'Biodata'}.png',
-          text: 'Check out this biodata created with BioCraft!',
+          filename: '$docTitle.png',
+          text: 'Check out this document created with BioCraft Studio!',
         );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -123,7 +152,7 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
     }
   }
 
-  Future<void> _sharePdf(BiodataModel biodata) async {
+  Future<void> _sharePdf() async {
     final previewProvider = context.read<PreviewProvider>();
     previewProvider.setIsExporting(true);
     try {
@@ -132,20 +161,21 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
         pixelRatio: 3.5,
       );
 
+      final String docTitle = _getDocTitle();
       final pdfBytes = imageBytes != null
           ? await PdfGenerator.generatePdfFromRenderedImage(imageBytes)
-          : await PdfGenerator.generateBiodataPdf(biodata);
+          : await _generateFallbackPdf();
 
       await ShareService.sharePdf(
         pdfBytes,
-        filename: '${biodata.fullName.isNotEmpty ? biodata.fullName.replaceAll(' ', '_') : 'Biodata'}.pdf',
-        subject: '${biodata.fullName} - Matrimonial Biodata',
+        filename: '$docTitle.pdf',
+        subject: '$docTitle - BioCraft Studio',
       );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error sharing: $e'),
+            content: Text('Error sharing document: $e'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -155,11 +185,62 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
     }
   }
 
+  String _getDocTitle() {
+    switch (_selectedCategory) {
+      case StudioCategory.biodata:
+        final b = context.read<BiodataProvider>().currentBiodata;
+        return b.fullName.isNotEmpty ? b.fullName.replaceAll(' ', '_') : 'Biodata';
+      case StudioCategory.invitation:
+        final inv = context.read<InvitationProvider>().currentInvitation;
+        return inv.eventTitle.isNotEmpty ? inv.eventTitle.replaceAll(' ', '_') : 'Invitation_Card';
+      case StudioCategory.resume:
+        final r = context.read<ResumeProvider>().currentResume;
+        return r.fullName.isNotEmpty ? '${r.fullName.replaceAll(' ', '_')}_Resume' : 'Resume';
+    }
+  }
+
+  Future<Uint8List> _generateFallbackPdf() async {
+    final b = context.read<BiodataProvider>().currentBiodata;
+    return await PdfGenerator.generateBiodataPdf(b);
+  }
+
+  void _saveCurrentDraft() {
+    switch (_selectedCategory) {
+      case StudioCategory.biodata:
+        context.read<BiodataProvider>().saveCurrentBiodata();
+        break;
+      case StudioCategory.invitation:
+        context.read<InvitationProvider>().saveCurrentInvitation();
+        break;
+      case StudioCategory.resume:
+        context.read<ResumeProvider>().saveCurrentResume();
+        break;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Draft saved locally!'),
+        backgroundColor: AppColors.success,
+      ),
+    );
+  }
+
+  void _navigateToEditor() {
+    switch (_selectedCategory) {
+      case StudioCategory.biodata:
+        context.push('/create-biodata');
+        break;
+      case StudioCategory.invitation:
+        context.push('/create-invitation');
+        break;
+      case StudioCategory.resume:
+        context.push('/create-resume');
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDesktop = ResponsiveHelper.isDesktop(context);
-    final bioProvider = context.watch<BiodataProvider>();
-    final biodata = bioProvider.currentBiodata;
     final previewProvider = context.watch<PreviewProvider>();
 
     return Scaffold(
@@ -172,50 +253,92 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
           IconButton(
             tooltip: 'Edit Details',
             icon: const Icon(Icons.edit_note, color: AppColors.primary),
-            onPressed: () => context.push('/create-biodata'),
+            onPressed: _navigateToEditor,
           ),
           IconButton(
             tooltip: 'Save Draft',
             icon: const Icon(Icons.save_outlined, color: AppColors.primary),
-            onPressed: () {
-              bioProvider.saveCurrentBiodata();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Draft saved locally!'),
-                  backgroundColor: AppColors.success,
-                ),
-              );
-            },
+            onPressed: _saveCurrentDraft,
           ),
           const SizedBox(width: 8),
         ],
       ),
-      body: isDesktop
-          ? Row(
-              children: [
-                Expanded(
-                  flex: 6,
-                  child: _buildCanvasArea(biodata, previewProvider),
-                ),
-                Container(width: 1, color: AppColors.border),
-                Expanded(
-                  flex: 4,
-                  child: _buildControlsArea(biodata, bioProvider, previewProvider),
-                ),
-              ],
-            )
-          : Column(
-              children: [
-                Expanded(
-                  child: _buildCanvasArea(biodata, previewProvider),
-                ),
-                _buildMobileControls(biodata, bioProvider, previewProvider),
-              ],
-            ),
+      body: Column(
+        children: [
+          _buildCategorySwitchBar(),
+          Expanded(
+            child: isDesktop
+                ? Row(
+                    children: [
+                      Expanded(
+                        flex: 6,
+                        child: _buildCanvasArea(previewProvider),
+                      ),
+                      Container(width: 1, color: AppColors.border),
+                      Expanded(
+                        flex: 4,
+                        child: _buildControlsArea(previewProvider),
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      Expanded(
+                        child: _buildCanvasArea(previewProvider),
+                      ),
+                      _buildMobileControls(previewProvider),
+                    ],
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildCanvasArea(BiodataModel biodata, PreviewProvider previewProvider) {
+  Widget _buildCategorySwitchBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        border: const Border(bottom: BorderSide(color: AppColors.border, width: 0.8)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildCategoryChip('💍 Biodata', StudioCategory.biodata),
+          const SizedBox(width: 8),
+          _buildCategoryChip('💌 Invitation Card', StudioCategory.invitation),
+          const SizedBox(width: 8),
+          _buildCategoryChip('📄 Resume / CV', StudioCategory.resume),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryChip(String label, StudioCategory category) {
+    final isSelected = _selectedCategory == category;
+    return FilterChip(
+      label: Text(label),
+      selected: isSelected,
+      selectedColor: AppColors.primary.withValues(alpha: 0.15),
+      checkmarkColor: AppColors.primary,
+      labelStyle: TextStyle(
+        fontSize: 12,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        color: isSelected ? AppColors.primary : AppColors.textSecondary,
+      ),
+      onSelected: (selected) {
+        if (selected) {
+          setState(() {
+            _selectedCategory = category;
+            _transformController.value = Matrix4.identity();
+          });
+        }
+      },
+    );
+  }
+
+  Widget _buildCanvasArea(PreviewProvider previewProvider) {
     return Container(
       color: const Color(0xFFF0EBE1),
       child: Stack(
@@ -223,7 +346,7 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
         children: [
           InteractiveViewer(
             transformationController: _transformController,
-            minScale: 0.4,
+            minScale: 0.35,
             maxScale: 2.5,
             boundaryMargin: const EdgeInsets.all(80),
             child: Center(
@@ -231,7 +354,9 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
                 padding: const EdgeInsets.all(24),
                 child: Center(
                   child: Container(
-                    constraints: const BoxConstraints(maxWidth: 595), // A4 ratio width
+                    constraints: BoxConstraints(
+                      maxWidth: _selectedCategory == StudioCategory.invitation ? 500 : 595,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       boxShadow: [
@@ -245,7 +370,7 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
                     ),
                     child: RepaintBoundary(
                       key: _previewContainerKey,
-                      child: _buildTemplateWidget(biodata),
+                      child: _buildActiveTemplateWidget(),
                     ),
                   ),
                 ),
@@ -274,14 +399,16 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
                     icon: const Icon(Icons.zoom_in, size: 20),
                     tooltip: 'Zoom In',
                     onPressed: () {
-                      _transformController.value = Matrix4.diagonal3Values(1.15, 1.15, 1.0) * _transformController.value;
+                      _transformController.value =
+                          Matrix4.diagonal3Values(1.15, 1.15, 1.0) * _transformController.value;
                     },
                   ),
                   IconButton(
                     icon: const Icon(Icons.zoom_out, size: 20),
                     tooltip: 'Zoom Out',
                     onPressed: () {
-                      _transformController.value = Matrix4.diagonal3Values(0.85, 0.85, 1.0) * _transformController.value;
+                      _transformController.value =
+                          Matrix4.diagonal3Values(0.85, 0.85, 1.0) * _transformController.value;
                     },
                   ),
                   IconButton(
@@ -319,25 +446,71 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
     );
   }
 
-  Widget _buildTemplateWidget(BiodataModel biodata) {
-    switch (biodata.templateId) {
-      case 'floral_elegance':
-        return FloralEleganceTemplate(biodata: biodata);
-      case 'modern_minimal':
-        return ModernMinimalTemplate(biodata: biodata);
-      case 'vintage_traditional':
-        return VintageTraditionalTemplate(biodata: biodata);
-      case 'royal_gold':
-      default:
-        return RoyalGoldTemplate(biodata: biodata);
+  Widget _buildActiveTemplateWidget() {
+    switch (_selectedCategory) {
+      case StudioCategory.biodata:
+        final biodata = context.watch<BiodataProvider>().currentBiodata;
+        switch (biodata.templateId) {
+          case 'floral_elegance':
+            return FloralEleganceTemplate(biodata: biodata);
+          case 'modern_minimal':
+            return ModernMinimalTemplate(biodata: biodata);
+          case 'vintage_traditional':
+            return VintageTraditionalTemplate(biodata: biodata);
+          case 'royal_gold':
+          default:
+            return RoyalGoldTemplate(biodata: biodata);
+        }
+
+      case StudioCategory.invitation:
+        final invitation = context.watch<InvitationProvider>().currentInvitation;
+        switch (invitation.templateId) {
+          case 'floral_festive':
+            return FloralFestiveCard(invitation: invitation);
+          case 'modern_party':
+            return ModernPartyCard(invitation: invitation);
+          case 'minimal_chic':
+            return MinimalChicCard(invitation: invitation);
+          case 'royal_wedding':
+          default:
+            return RoyalWeddingCard(invitation: invitation);
+        }
+
+      case StudioCategory.resume:
+        final resume = context.watch<ResumeProvider>().currentResume;
+        switch (resume.templateId) {
+          case 'executive_clean':
+            return ExecutiveCleanResume(resume: resume);
+          case 'creative_minimal':
+            return CreativeMinimalResume(resume: resume);
+          case 'modern_tech':
+          default:
+            return ModernTechResume(resume: resume);
+        }
     }
   }
 
-  Widget _buildControlsArea(
-    BiodataModel biodata,
-    BiodataProvider bioProvider,
-    PreviewProvider previewProvider,
-  ) {
+  Widget _buildControlsArea(PreviewProvider previewProvider) {
+    final bioProvider = context.watch<BiodataProvider>();
+    final invProvider = context.watch<InvitationProvider>();
+    final resProvider = context.watch<ResumeProvider>();
+
+    final List<Map<String, String>> templateList = _selectedCategory == StudioCategory.biodata
+        ? _biodataTemplates
+        : (_selectedCategory == StudioCategory.invitation ? _invitationTemplates : _resumeTemplates);
+
+    final String activeTemplateId = _selectedCategory == StudioCategory.biodata
+        ? bioProvider.currentBiodata.templateId
+        : (_selectedCategory == StudioCategory.invitation
+            ? invProvider.currentInvitation.templateId
+            : resProvider.currentResume.templateId);
+
+    final int activeColor = _selectedCategory == StudioCategory.biodata
+        ? bioProvider.currentBiodata.primaryColorValue
+        : (_selectedCategory == StudioCategory.invitation
+            ? invProvider.currentInvitation.primaryColorValue
+            : resProvider.currentResume.primaryColorValue);
+
     return Container(
       color: Theme.of(context).cardColor,
       child: Column(
@@ -370,13 +543,25 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
                       mainAxisSpacing: 10,
                       childAspectRatio: 2.3,
                     ),
-                    itemCount: _templates.length,
+                    itemCount: templateList.length,
                     itemBuilder: (context, index) {
-                      final item = _templates[index];
-                      final isSelected = biodata.templateId == item['id'];
+                      final item = templateList[index];
+                      final isSelected = activeTemplateId == item['id'];
                       return InkWell(
                         onTap: () {
-                          bioProvider.updateBiodata(biodata.copyWith(templateId: item['id']));
+                          if (_selectedCategory == StudioCategory.biodata) {
+                            bioProvider.updateBiodata(
+                              bioProvider.currentBiodata.copyWith(templateId: item['id']),
+                            );
+                          } else if (_selectedCategory == StudioCategory.invitation) {
+                            invProvider.updateInvitation(
+                              invProvider.currentInvitation.copyWith(templateId: item['id']),
+                            );
+                          } else {
+                            resProvider.updateResume(
+                              resProvider.currentResume.copyWith(templateId: item['id']),
+                            );
+                          }
                         },
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
@@ -417,36 +602,20 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
                   _buildSectionLabel('Theme Accent Color'),
                   const SizedBox(height: 8),
                   ColorPickerWidget(
-                    selectedColor: Color(biodata.primaryColorValue),
+                    selectedColor: Color(activeColor),
                     onColorChanged: (color) {
-                      bioProvider.updateBiodata(biodata.copyWith(primaryColorValue: color.toARGB32()));
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Religious Heading Emblem
-                  _buildSectionLabel('Header Mantra / Symbol'),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    initialValue: _religionHeadings.contains(biodata.religionHeading)
-                        ? biodata.religionHeading
-                        : _religionHeadings.first,
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    items: _religionHeadings.map((heading) {
-                      return DropdownMenuItem<String>(
-                        value: heading,
-                        child: Text(
-                          heading.isEmpty ? 'None (Clean Modern)' : heading,
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      if (val != null) {
-                        bioProvider.updateBiodata(biodata.copyWith(religionHeading: val));
+                      if (_selectedCategory == StudioCategory.biodata) {
+                        bioProvider.updateBiodata(
+                          bioProvider.currentBiodata.copyWith(primaryColorValue: color.toARGB32()),
+                        );
+                      } else if (_selectedCategory == StudioCategory.invitation) {
+                        invProvider.updateInvitation(
+                          invProvider.currentInvitation.copyWith(primaryColorValue: color.toARGB32()),
+                        );
+                      } else {
+                        resProvider.updateResume(
+                          resProvider.currentResume.copyWith(primaryColorValue: color.toARGB32()),
+                        );
                       }
                     },
                   ),
@@ -465,9 +634,9 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
             child: Column(
               children: [
                 AppButton(
-                  text: 'Download Vector PDF (A4)',
+                  text: 'Download Vector PDF',
                   icon: Icons.picture_as_pdf_outlined,
-                  onPressed: () => _exportPdf(biodata),
+                  onPressed: _exportPdf,
                 ),
                 const SizedBox(height: 10),
                 Row(
@@ -477,7 +646,7 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
                         text: 'Save Image',
                         icon: Icons.image_outlined,
                         type: AppButtonType.outline,
-                        onPressed: () => _exportImage(biodata),
+                        onPressed: _exportImage,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -486,7 +655,7 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
                         text: 'Share',
                         icon: Icons.share_outlined,
                         type: AppButtonType.secondary,
-                        onPressed: () => _sharePdf(biodata),
+                        onPressed: _sharePdf,
                       ),
                     ),
                   ],
@@ -499,11 +668,27 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
     );
   }
 
-  Widget _buildMobileControls(
-    BiodataModel biodata,
-    BiodataProvider bioProvider,
-    PreviewProvider previewProvider,
-  ) {
+  Widget _buildMobileControls(PreviewProvider previewProvider) {
+    final bioProvider = context.watch<BiodataProvider>();
+    final invProvider = context.watch<InvitationProvider>();
+    final resProvider = context.watch<ResumeProvider>();
+
+    final List<Map<String, String>> templateList = _selectedCategory == StudioCategory.biodata
+        ? _biodataTemplates
+        : (_selectedCategory == StudioCategory.invitation ? _invitationTemplates : _resumeTemplates);
+
+    final String activeTemplateId = _selectedCategory == StudioCategory.biodata
+        ? bioProvider.currentBiodata.templateId
+        : (_selectedCategory == StudioCategory.invitation
+            ? invProvider.currentInvitation.templateId
+            : resProvider.currentResume.templateId);
+
+    final int activeColor = _selectedCategory == StudioCategory.biodata
+        ? bioProvider.currentBiodata.primaryColorValue
+        : (_selectedCategory == StudioCategory.invitation
+            ? invProvider.currentInvitation.primaryColorValue
+            : resProvider.currentResume.primaryColorValue);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -519,8 +704,8 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: _templates.map((t) {
-                      final isSelected = biodata.templateId == t['id'];
+                    children: templateList.map((t) {
+                      final isSelected = activeTemplateId == t['id'];
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: ChoiceChip(
@@ -528,7 +713,19 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
                           selected: isSelected,
                           onSelected: (selected) {
                             if (selected) {
-                              bioProvider.updateBiodata(biodata.copyWith(templateId: t['id']));
+                              if (_selectedCategory == StudioCategory.biodata) {
+                                bioProvider.updateBiodata(
+                                  bioProvider.currentBiodata.copyWith(templateId: t['id']),
+                                );
+                              } else if (_selectedCategory == StudioCategory.invitation) {
+                                invProvider.updateInvitation(
+                                  invProvider.currentInvitation.copyWith(templateId: t['id']),
+                                );
+                              } else {
+                                resProvider.updateResume(
+                                  resProvider.currentResume.copyWith(templateId: t['id']),
+                                );
+                              }
                             }
                           },
                         ),
@@ -540,7 +737,7 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
               IconButton(
                 icon: const Icon(Icons.palette_outlined, color: AppColors.primary),
                 tooltip: 'Color Palette',
-                onPressed: () => _showColorBottomSheet(biodata, bioProvider),
+                onPressed: () => _showColorBottomSheet(activeColor),
               ),
             ],
           ),
@@ -551,20 +748,20 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
                 child: AppButton(
                   text: 'Download PDF',
                   icon: Icons.picture_as_pdf,
-                  onPressed: () => _exportPdf(biodata),
+                  onPressed: _exportPdf,
                 ),
               ),
               const SizedBox(width: 8),
               IconButton.filledTonal(
                 icon: const Icon(Icons.image_outlined),
                 tooltip: 'Export Image',
-                onPressed: () => _exportImage(biodata),
+                onPressed: _exportImage,
               ),
               const SizedBox(width: 4),
               IconButton.filledTonal(
                 icon: const Icon(Icons.share_outlined),
                 tooltip: 'Share',
-                onPressed: () => _sharePdf(biodata),
+                onPressed: _sharePdf,
               ),
             ],
           ),
@@ -573,7 +770,11 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
     );
   }
 
-  void _showColorBottomSheet(BiodataModel biodata, BiodataProvider bioProvider) {
+  void _showColorBottomSheet(int activeColor) {
+    final bioProvider = context.read<BiodataProvider>();
+    final invProvider = context.read<InvitationProvider>();
+    final resProvider = context.read<ResumeProvider>();
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -592,9 +793,21 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
               ),
               const SizedBox(height: 16),
               ColorPickerWidget(
-                selectedColor: Color(biodata.primaryColorValue),
+                selectedColor: Color(activeColor),
                 onColorChanged: (color) {
-                  bioProvider.updateBiodata(biodata.copyWith(primaryColorValue: color.toARGB32()));
+                  if (_selectedCategory == StudioCategory.biodata) {
+                    bioProvider.updateBiodata(
+                      bioProvider.currentBiodata.copyWith(primaryColorValue: color.toARGB32()),
+                    );
+                  } else if (_selectedCategory == StudioCategory.invitation) {
+                    invProvider.updateInvitation(
+                      invProvider.currentInvitation.copyWith(primaryColorValue: color.toARGB32()),
+                    );
+                  } else {
+                    resProvider.updateResume(
+                      resProvider.currentResume.copyWith(primaryColorValue: color.toARGB32()),
+                    );
+                  }
                   Navigator.pop(context);
                 },
               ),

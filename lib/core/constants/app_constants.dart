@@ -6,10 +6,12 @@ class AppConstants {
   // Categories
   static const String categoryBiodata = 'Matrimonial Biodata';
   static const String categoryInvitation = 'Invitations & Cards';
+  static const String categoryResume = 'Job Resume & CV';
 
   // Storage Keys
   static const String keySavedBiodatas = 'biocraft_saved_biodatas';
   static const String keySavedInvitations = 'biocraft_saved_invitations';
+  static const String keySavedResumes = 'biocraft_saved_resumes';
   static const String keyAppThemeMode = 'biocraft_theme_mode';
 
   // Religions & Symbols / Header Text
