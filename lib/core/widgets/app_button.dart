@@ -25,6 +25,11 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    );
+    const buttonPadding = EdgeInsets.symmetric(horizontal: 10, vertical: 0);
+
     if (type == AppButtonType.outline) {
       return SizedBox(
         width: width,
@@ -32,10 +37,9 @@ class AppButton extends StatelessWidget {
         child: OutlinedButton(
           onPressed: isLoading ? null : onPressed,
           style: OutlinedButton.styleFrom(
+            padding: buttonPadding,
             side: const BorderSide(color: AppColors.primary, width: 1.5),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: shape,
           ),
           child: _buildChild(AppColors.primary),
         ),
@@ -49,11 +53,10 @@ class AppButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: isLoading ? null : onPressed,
           style: ElevatedButton.styleFrom(
+            padding: buttonPadding,
             backgroundColor: AppColors.secondary,
             foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: shape,
           ),
           child: _buildChild(Colors.black),
         ),
@@ -66,6 +69,9 @@ class AppButton extends StatelessWidget {
         height: height,
         child: TextButton(
           onPressed: isLoading ? null : onPressed,
+          style: TextButton.styleFrom(
+            padding: buttonPadding,
+          ),
           child: _buildChild(AppColors.primary),
         ),
       );
@@ -78,11 +84,10 @@ class AppButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
+          padding: buttonPadding,
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: shape,
         ),
         child: _buildChild(Colors.white),
       ),
@@ -106,14 +111,18 @@ class AppButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 18, color: textColor),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: textColor,
+          Icon(icon, size: 16, color: textColor),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: textColor,
+              ),
             ),
           ),
         ],
@@ -122,8 +131,10 @@ class AppButton extends StatelessWidget {
 
     return Text(
       text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: TextStyle(
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: FontWeight.w600,
         color: textColor,
       ),

@@ -14,7 +14,7 @@ class ExecutiveCleanResume extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -24,10 +24,11 @@ class ExecutiveCleanResume extends StatelessWidget {
               children: [
                 Text(
                   resume.fullName.isNotEmpty ? resume.fullName.toUpperCase() : 'YOUR FULL NAME',
+                  textAlign: TextAlign.center,
                   style: GoogleFonts.playfairDisplay(
-                    fontSize: 22,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
+                    letterSpacing: 1.5,
                     color: const Color(0xFF0F172A),
                   ),
                 ),
@@ -35,36 +36,37 @@ class ExecutiveCleanResume extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     resume.professionalTitle,
+                    textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
-                      fontSize: 12,
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w600,
                       color: themeColor,
-                      letterSpacing: 1,
+                      letterSpacing: 0.8,
                     ),
                   ),
                 ],
                 const SizedBox(height: 8),
                 Wrap(
                   alignment: WrapAlignment.center,
-                  spacing: 12,
+                  spacing: 10,
                   runSpacing: 4,
                   children: [
                     if (resume.email.isNotEmpty)
-                      Text(resume.email, style: GoogleFonts.outfit(fontSize: 10, color: const Color(0xFF64748B))),
+                      Text(resume.email, style: GoogleFonts.outfit(fontSize: 9.5, color: const Color(0xFF64748B))),
                     if (resume.phone.isNotEmpty)
-                      Text('•  ${resume.phone}', style: GoogleFonts.outfit(fontSize: 10, color: const Color(0xFF64748B))),
+                      Text('•  ${resume.phone}', style: GoogleFonts.outfit(fontSize: 9.5, color: const Color(0xFF64748B))),
                     if (resume.location.isNotEmpty)
-                      Text('•  ${resume.location}', style: GoogleFonts.outfit(fontSize: 10, color: const Color(0xFF64748B))),
+                      Text('•  ${resume.location}', style: GoogleFonts.outfit(fontSize: 9.5, color: const Color(0xFF64748B))),
                     if (resume.linkedin.isNotEmpty)
-                      Text('•  ${resume.linkedin}', style: GoogleFonts.outfit(fontSize: 10, color: themeColor)),
+                      Text('•  ${resume.linkedin}', style: GoogleFonts.outfit(fontSize: 9.5, color: themeColor)),
                   ],
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
-          Divider(color: themeColor, thickness: 1.5),
           const SizedBox(height: 10),
+          Divider(color: themeColor, thickness: 1.5),
+          const SizedBox(height: 8),
 
           // Executive Summary
           if (resume.summary.isNotEmpty) ...[
@@ -73,12 +75,12 @@ class ExecutiveCleanResume extends StatelessWidget {
             Text(
               resume.summary,
               style: GoogleFonts.outfit(
-                fontSize: 10.5,
+                fontSize: 10,
                 color: const Color(0xFF334155),
-                height: 1.4,
+                height: 1.35,
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
           ],
 
           // Professional Experience
@@ -87,27 +89,29 @@ class ExecutiveCleanResume extends StatelessWidget {
             const SizedBox(height: 6),
             ...resume.experiences.map((exp) {
               return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.only(bottom: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: Text(
                             exp.role,
                             style: GoogleFonts.outfit(
-                              fontSize: 11.5,
+                              fontSize: 11,
                               fontWeight: FontWeight.bold,
                               color: const Color(0xFF0F172A),
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Text(
                           '${exp.startDate} – ${exp.isCurrent ? 'Present' : exp.endDate}',
                           style: GoogleFonts.outfit(
-                            fontSize: 10,
+                            fontSize: 9.5,
                             fontWeight: FontWeight.w600,
                             color: const Color(0xFF64748B),
                           ),
@@ -117,7 +121,7 @@ class ExecutiveCleanResume extends StatelessWidget {
                     Text(
                       '${exp.company}${exp.location.isNotEmpty ? ', ${exp.location}' : ''}',
                       style: GoogleFonts.outfit(
-                        fontSize: 10.5,
+                        fontSize: 10,
                         fontStyle: FontStyle.italic,
                         color: themeColor,
                       ),
@@ -127,9 +131,9 @@ class ExecutiveCleanResume extends StatelessWidget {
                       Text(
                         exp.description,
                         style: GoogleFonts.outfit(
-                          fontSize: 10,
+                          fontSize: 9.5,
                           color: const Color(0xFF334155),
-                          height: 1.35,
+                          height: 1.3,
                         ),
                       ),
                     ],
@@ -137,7 +141,7 @@ class ExecutiveCleanResume extends StatelessWidget {
                 ),
               );
             }),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
           ],
 
           // Education
@@ -146,9 +150,10 @@ class ExecutiveCleanResume extends StatelessWidget {
             const SizedBox(height: 6),
             ...resume.educations.map((edu) {
               return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.only(bottom: 6),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Column(
@@ -157,29 +162,30 @@ class ExecutiveCleanResume extends StatelessWidget {
                           Text(
                             edu.degree,
                             style: GoogleFonts.outfit(
-                              fontSize: 11,
+                              fontSize: 10.5,
                               fontWeight: FontWeight.bold,
                               color: const Color(0xFF0F172A),
                             ),
                           ),
                           Text(
                             '${edu.institution}${edu.location.isNotEmpty ? ', ${edu.location}' : ''}',
-                            style: GoogleFonts.outfit(fontSize: 10, color: const Color(0xFF64748B)),
+                            style: GoogleFonts.outfit(fontSize: 9.5, color: const Color(0xFF64748B)),
                           ),
                         ],
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           '${edu.startYear} – ${edu.endYear}',
-                          style: GoogleFonts.outfit(fontSize: 9.5, color: const Color(0xFF64748B)),
+                          style: GoogleFonts.outfit(fontSize: 9, color: const Color(0xFF64748B)),
                         ),
                         if (edu.score.isNotEmpty)
                           Text(
                             edu.score,
-                            style: GoogleFonts.outfit(fontSize: 9.5, fontWeight: FontWeight.w600, color: themeColor),
+                            style: GoogleFonts.outfit(fontSize: 9, fontWeight: FontWeight.w600, color: themeColor),
                           ),
                       ],
                     ),
@@ -187,7 +193,7 @@ class ExecutiveCleanResume extends StatelessWidget {
                 ),
               );
             }),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
           ],
 
           // Core Competencies & Skills
@@ -197,13 +203,13 @@ class ExecutiveCleanResume extends StatelessWidget {
             Text(
               resume.skills.join('  •  '),
               style: GoogleFonts.outfit(
-                fontSize: 10,
+                fontSize: 9.5,
                 fontWeight: FontWeight.w500,
                 color: const Color(0xFF334155),
-                height: 1.4,
+                height: 1.35,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
           ],
 
           // Certifications & Languages
@@ -218,10 +224,12 @@ class ExecutiveCleanResume extends StatelessWidget {
                       children: [
                         _buildSectionHeading('CERTIFICATIONS', themeColor),
                         const SizedBox(height: 4),
-                        ...resume.certifications.map((c) => Text('• $c', style: GoogleFonts.outfit(fontSize: 9.5, color: const Color(0xFF475569)))),
+                        ...resume.certifications.map((c) => Text('• $c', style: GoogleFonts.outfit(fontSize: 9, color: const Color(0xFF475569)))),
                       ],
                     ),
                   ),
+                if (resume.certifications.isNotEmpty && resume.languages.isNotEmpty)
+                  const SizedBox(width: 12),
                 if (resume.languages.isNotEmpty)
                   Expanded(
                     child: Column(
@@ -229,7 +237,7 @@ class ExecutiveCleanResume extends StatelessWidget {
                       children: [
                         _buildSectionHeading('LANGUAGES', themeColor),
                         const SizedBox(height: 4),
-                        Text(resume.languages.join(', '), style: GoogleFonts.outfit(fontSize: 9.5, color: const Color(0xFF475569))),
+                        Text(resume.languages.join(', '), style: GoogleFonts.outfit(fontSize: 9, color: const Color(0xFF475569))),
                       ],
                     ),
                   ),
@@ -248,9 +256,9 @@ class ExecutiveCleanResume extends StatelessWidget {
         Text(
           title,
           style: GoogleFonts.cinzel(
-            fontSize: 11,
+            fontSize: 10.5,
             fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
+            letterSpacing: 1.2,
             color: color,
           ),
         ),

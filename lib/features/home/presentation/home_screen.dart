@@ -540,7 +540,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
         const SizedBox(height: 8),
         SizedBox(
-          height: 110,
+          height: 125,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: drafts.length,
@@ -569,10 +569,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.max,
                       children: [
                         Row(
                           children: [
@@ -617,14 +618,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                   tooltip: 'Preview',
                                   onPressed: () => onPreview(item),
                                 ),
-                                const SizedBox(width: 4),
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    visualDensity: VisualDensity.compact,
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                const SizedBox(width: 6),
+                                InkWell(
+                                  onTap: () => onEdit(item),
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Text(
+                                      'Edit',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
                                   ),
-                                  onPressed: () => onEdit(item),
-                                  child: const Text('Edit', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                                 ),
                               ],
                             ),

@@ -302,15 +302,18 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
         color: Theme.of(context).cardColor,
         border: const Border(bottom: BorderSide(color: AppColors.border, width: 0.8)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _buildCategoryChip('💍 Biodata', StudioCategory.biodata),
-          const SizedBox(width: 8),
-          _buildCategoryChip('💌 Invitation Card', StudioCategory.invitation),
-          const SizedBox(width: 8),
-          _buildCategoryChip('📄 Resume / CV', StudioCategory.resume),
-        ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildCategoryChip('💍 Biodata', StudioCategory.biodata),
+            const SizedBox(width: 8),
+            _buildCategoryChip('💌 Invitation Card', StudioCategory.invitation),
+            const SizedBox(width: 8),
+            _buildCategoryChip('📄 Resume / CV', StudioCategory.resume),
+          ],
+        ),
       ),
     );
   }
