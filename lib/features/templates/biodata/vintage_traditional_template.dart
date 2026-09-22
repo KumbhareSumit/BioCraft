@@ -130,7 +130,7 @@ class VintageTraditionalTemplate extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 130,
+            width: 115,
             child: Text(
               label,
               style: GoogleFonts.outfit(

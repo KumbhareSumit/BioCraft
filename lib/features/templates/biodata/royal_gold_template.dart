@@ -43,24 +43,26 @@ class RoyalGoldTemplate extends StatelessWidget {
                 ),
               ),
             ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(height: 1, width: 40, color: gold),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  'MATRIMONIAL BIODATA',
-                  style: GoogleFonts.cinzel(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: gold,
-                    letterSpacing: 2,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Row(
+              children: [
+                Expanded(child: Container(height: 1, color: gold)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    'MATRIMONIAL BIODATA',
+                    style: GoogleFonts.cinzel(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: gold,
+                      letterSpacing: 1.5,
+                    ),
                   ),
                 ),
-              ),
-              Container(height: 1, width: 40, color: gold),
-            ],
+                Expanded(child: Container(height: 1, color: gold)),
+              ],
+            ),
           ),
           const SizedBox(height: 14),
 
@@ -186,7 +188,7 @@ class RoyalGoldTemplate extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 135,
+            width: 110,
             child: Text(
               label,
               style: GoogleFonts.outfit(

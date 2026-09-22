@@ -68,55 +68,112 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
   String _selectedManglik = 'No';
   String _selectedFamilyType = 'Nuclear';
   String _selectedFamilyValues = 'Moderate';
+  String? _loadedBiodataId;
 
   @override
   void initState() {
     super.initState();
     final bio = context.read<BiodataProvider>().currentBiodata;
+    _loadedBiodataId = bio.id;
     _initControllers(bio);
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final bio = context.watch<BiodataProvider>().currentBiodata;
+    if (_loadedBiodataId != bio.id) {
+      _loadedBiodataId = bio.id;
+      _populateControllers(bio);
+    }
+  }
+
   void _initControllers(BiodataModel bio) {
-    _nameController = TextEditingController(text: bio.fullName);
-    _dobController = TextEditingController(text: bio.dateOfBirth);
-    _tobController = TextEditingController(text: bio.timeOfBirth);
-    _pobController = TextEditingController(text: bio.placeOfBirth);
-    _heightController = TextEditingController(text: bio.height);
-    _complexionController = TextEditingController(text: bio.complexion);
-    _bloodGroupController = TextEditingController(text: bio.bloodGroup);
-    _motherTongueController = TextEditingController(text: bio.motherTongue);
-    _religionHeadingController = TextEditingController(text: bio.religionHeading);
-    _religionController = TextEditingController(text: bio.religion);
-    _casteController = TextEditingController(text: bio.caste);
-    _subCasteController = TextEditingController(text: bio.subCaste);
-    _gotraController = TextEditingController(text: bio.gotra);
-    _rashiController = TextEditingController(text: bio.rashi);
-    _nakshatraController = TextEditingController(text: bio.nakshatra);
+    _nameController = TextEditingController();
+    _dobController = TextEditingController();
+    _tobController = TextEditingController();
+    _pobController = TextEditingController();
+    _heightController = TextEditingController();
+    _complexionController = TextEditingController();
+    _bloodGroupController = TextEditingController();
+    _motherTongueController = TextEditingController();
+    _religionHeadingController = TextEditingController();
+    _religionController = TextEditingController();
+    _casteController = TextEditingController();
+    _subCasteController = TextEditingController();
+    _gotraController = TextEditingController();
+    _rashiController = TextEditingController();
+    _nakshatraController = TextEditingController();
 
-    _educationController = TextEditingController(text: bio.highestEducation);
-    _eduDetailsController = TextEditingController(text: bio.educationDetails);
-    _occupationController = TextEditingController(text: bio.occupation);
-    _companyController = TextEditingController(text: bio.companyName);
-    _incomeController = TextEditingController(text: bio.annualIncome);
-    _locationController = TextEditingController(text: bio.workLocation);
+    _educationController = TextEditingController();
+    _eduDetailsController = TextEditingController();
+    _occupationController = TextEditingController();
+    _companyController = TextEditingController();
+    _incomeController = TextEditingController();
+    _locationController = TextEditingController();
 
-    _fatherNameController = TextEditingController(text: bio.fatherName);
-    _fatherOccController = TextEditingController(text: bio.fatherOccupation);
-    _motherNameController = TextEditingController(text: bio.motherName);
-    _motherOccController = TextEditingController(text: bio.motherOccupation);
-    _brothersCountController = TextEditingController(text: bio.brothersCount);
-    _brothersDetailsController = TextEditingController(text: bio.brothersDetails);
-    _sistersCountController = TextEditingController(text: bio.sistersCount);
-    _sistersDetailsController = TextEditingController(text: bio.sistersDetails);
-    _maternalUncleController = TextEditingController(text: bio.maternalUncleDetails);
+    _fatherNameController = TextEditingController();
+    _fatherOccController = TextEditingController();
+    _motherNameController = TextEditingController();
+    _motherOccController = TextEditingController();
+    _brothersCountController = TextEditingController();
+    _brothersDetailsController = TextEditingController();
+    _sistersCountController = TextEditingController();
+    _sistersDetailsController = TextEditingController();
+    _maternalUncleController = TextEditingController();
 
-    _contactPersonController = TextEditingController(text: bio.contactPerson);
-    _contactNumController = TextEditingController(text: bio.contactNumber);
-    _altNumController = TextEditingController(text: bio.alternateNumber);
-    _emailController = TextEditingController(text: bio.email);
-    _addressController = TextEditingController(text: bio.residentialAddress);
-    _nativePlaceController = TextEditingController(text: bio.nativePlace);
-    _expectationsController = TextEditingController(text: bio.expectations);
+    _contactPersonController = TextEditingController();
+    _contactNumController = TextEditingController();
+    _altNumController = TextEditingController();
+    _emailController = TextEditingController();
+    _addressController = TextEditingController();
+    _nativePlaceController = TextEditingController();
+    _expectationsController = TextEditingController();
+
+    _populateControllers(bio);
+  }
+
+  void _populateControllers(BiodataModel bio) {
+    _nameController.text = bio.fullName;
+    _dobController.text = bio.dateOfBirth;
+    _tobController.text = bio.timeOfBirth;
+    _pobController.text = bio.placeOfBirth;
+    _heightController.text = bio.height;
+    _complexionController.text = bio.complexion;
+    _bloodGroupController.text = bio.bloodGroup;
+    _motherTongueController.text = bio.motherTongue;
+    _religionHeadingController.text = bio.religionHeading;
+    _religionController.text = bio.religion;
+    _casteController.text = bio.caste;
+    _subCasteController.text = bio.subCaste;
+    _gotraController.text = bio.gotra;
+    _rashiController.text = bio.rashi;
+    _nakshatraController.text = bio.nakshatra;
+
+    _educationController.text = bio.highestEducation;
+    _eduDetailsController.text = bio.educationDetails;
+    _occupationController.text = bio.occupation;
+    _companyController.text = bio.companyName;
+    _incomeController.text = bio.annualIncome;
+    _locationController.text = bio.workLocation;
+
+    _fatherNameController.text = bio.fatherName;
+    _fatherOccController.text = bio.fatherOccupation;
+    _motherNameController.text = bio.motherName;
+    _motherOccController.text = bio.motherOccupation;
+    _brothersCountController.text = bio.brothersCount;
+    _brothersDetailsController.text = bio.brothersDetails;
+    _sistersCountController.text = bio.sistersCount;
+    _sistersDetailsController.text = bio.sistersDetails;
+    _maternalUncleController.text = bio.maternalUncleDetails;
+
+    _contactPersonController.text = bio.contactPerson;
+    _contactNumController.text = bio.contactNumber;
+    _altNumController.text = bio.alternateNumber;
+    _emailController.text = bio.email;
+    _addressController.text = bio.residentialAddress;
+    _nativePlaceController.text = bio.nativePlace;
+    _expectationsController.text = bio.expectations;
 
     _selectedGender = bio.gender.isNotEmpty ? bio.gender : 'Male';
     _selectedMaritalStatus = bio.maritalStatus.isNotEmpty ? bio.maritalStatus : 'Never Married';

@@ -268,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 110,
+          height: 130,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: drafts.length,
@@ -277,58 +277,105 @@ class _HomeScreenState extends State<HomeScreen> {
               final draft = drafts[index];
               final title = draft.fullName.isNotEmpty ? draft.fullName : 'Untitled Biodata';
 
-              return Container(
-                width: 260,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    bioProvider.loadBiodata(draft);
+                    context.push('/create-biodata');
+                  },
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
-                ),
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Color(draft.primaryColorValue).withValues(alpha: 0.15),
-                          child: Icon(Icons.person, color: Color(draft.primaryColorValue), size: 18),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.error),
-                          onPressed: () => bioProvider.deleteBiodata(draft.id),
-                          tooltip: 'Delete Draft',
+                  child: Container(
+                    width: 270,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.border),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.03),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    Row(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          draft.templateId.replaceAll('_', ' ').toUpperCase(),
-                          style: const TextStyle(fontSize: 10, color: AppColors.textSecondary, fontWeight: FontWeight.bold),
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 16,
+                              backgroundColor: Color(draft.primaryColorValue).withValues(alpha: 0.15),
+                              child: Icon(Icons.person, color: Color(draft.primaryColorValue), size: 18),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                              ),
+                            ),
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.error),
+                              onPressed: () => bioProvider.deleteBiodata(draft.id),
+                              tooltip: 'Delete Draft',
+                            ),
+                          ],
                         ),
-                        TextButton(
-                          onPressed: () {
-                            bioProvider.loadBiodata(draft);
-                            context.push('/preview-biodata');
-                          },
-                          child: const Text('Open & Edit', style: TextStyle(fontSize: 12)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceVariant.withValues(alpha: 0.6),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                draft.templateId.replaceAll('_', ' ').toUpperCase(),
+                                style: const TextStyle(fontSize: 10, color: AppColors.textSecondary, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  icon: const Icon(Icons.visibility_outlined, size: 18, color: AppColors.textSecondary),
+                                  tooltip: 'Preview',
+                                  onPressed: () {
+                                    bioProvider.loadBiodata(draft);
+                                    context.push('/preview-biodata');
+                                  },
+                                ),
+                                const SizedBox(width: 6),
+                                TextButton.icon(
+                                  style: TextButton.styleFrom(
+                                    visualDensity: VisualDensity.compact,
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  ),
+                                  icon: const Icon(Icons.edit_outlined, size: 14),
+                                  label: const Text('Edit', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                  onPressed: () {
+                                    bioProvider.loadBiodata(draft);
+                                    context.push('/create-biodata');
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               );
             },
@@ -392,7 +439,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisCount: ResponsiveHelper.isDesktop(context) ? 4 : (ResponsiveHelper.isTablet(context) ? 2 : 1),
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
-            childAspectRatio: ResponsiveHelper.isDesktop(context) ? 0.78 : (ResponsiveHelper.isTablet(context) ? 0.82 : 1.2),
+            childAspectRatio: ResponsiveHelper.isDesktop(context) ? 0.78 : (ResponsiveHelper.isTablet(context) ? 0.85 : 1.35),
           ),
           itemCount: filtered.length,
           itemBuilder: (context, index) {
@@ -512,7 +559,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisCount: ResponsiveHelper.isDesktop(context) ? 4 : (ResponsiveHelper.isTablet(context) ? 2 : 1),
               crossAxisSpacing: 14,
               mainAxisSpacing: 14,
-              childAspectRatio: 2.8,
+              childAspectRatio: ResponsiveHelper.isDesktop(context) ? 4 : (ResponsiveHelper.isTablet(context) ? 3 : 3.6),
             ),
             itemCount: features.length,
             itemBuilder: (context, index) {

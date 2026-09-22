@@ -52,11 +52,21 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
     final previewProvider = context.read<PreviewProvider>();
     previewProvider.setIsExporting(true);
     try {
-      final pdfBytes = await PdfGenerator.generateBiodataPdf(biodata);
+      // Capture the exact on-screen rendered template at ultra high-res (3.5x ratio)
+      final imageBytes = await ImageExporter.captureWidgetAsImage(
+        _previewContainerKey,
+        pixelRatio: 3.5,
+      );
+
+      final pdfBytes = imageBytes != null
+          ? await PdfGenerator.generatePdfFromRenderedImage(imageBytes)
+          : await PdfGenerator.generateBiodataPdf(biodata);
+
       await Printing.layoutPdf(
         onLayout: (format) async => pdfBytes,
-        name: '${biodata.fullName.replaceAll(' ', '_')}_Biodata.pdf',
+        name: '${biodata.fullName.isNotEmpty ? biodata.fullName.replaceAll(' ', '_') : 'Biodata'}.pdf',
       );
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -83,11 +93,11 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
     final previewProvider = context.read<PreviewProvider>();
     previewProvider.setIsExporting(true);
     try {
-      final imageBytes = await ImageExporter.captureWidgetAsImage(_previewContainerKey);
+      final imageBytes = await ImageExporter.captureWidgetAsImage(_previewContainerKey, pixelRatio: 3.5);
       if (imageBytes != null) {
         await ShareService.shareImage(
           imageBytes,
-          filename: '${biodata.fullName.replaceAll(' ', '_')}_Biodata.png',
+          filename: '${biodata.fullName.isNotEmpty ? biodata.fullName.replaceAll(' ', '_') : 'Biodata'}.png',
           text: 'Check out this biodata created with BioCraft!',
         );
         if (mounted) {
@@ -117,10 +127,18 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
     final previewProvider = context.read<PreviewProvider>();
     previewProvider.setIsExporting(true);
     try {
-      final pdfBytes = await PdfGenerator.generateBiodataPdf(biodata);
+      final imageBytes = await ImageExporter.captureWidgetAsImage(
+        _previewContainerKey,
+        pixelRatio: 3.5,
+      );
+
+      final pdfBytes = imageBytes != null
+          ? await PdfGenerator.generatePdfFromRenderedImage(imageBytes)
+          : await PdfGenerator.generateBiodataPdf(biodata);
+
       await ShareService.sharePdf(
         pdfBytes,
-        filename: '${biodata.fullName.replaceAll(' ', '_')}_Biodata.pdf',
+        filename: '${biodata.fullName.isNotEmpty ? biodata.fullName.replaceAll(' ', '_') : 'Biodata'}.pdf',
         subject: '${biodata.fullName} - Matrimonial Biodata',
       );
     } catch (e) {
@@ -154,7 +172,7 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
           IconButton(
             tooltip: 'Edit Details',
             icon: const Icon(Icons.edit_note, color: AppColors.primary),
-            onPressed: () => context.pop(),
+            onPressed: () => context.push('/create-biodata'),
           ),
           IconButton(
             tooltip: 'Save Draft',

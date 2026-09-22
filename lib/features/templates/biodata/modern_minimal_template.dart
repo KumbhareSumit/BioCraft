@@ -117,59 +117,68 @@ class ModernMinimalTemplate extends StatelessWidget {
   }
 
   Widget _buildGridSection(String title, List<Widget> items, Color color) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth;
+        final itemWidth = (availableWidth - 12) / 2;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(width: 4, height: 14, color: color),
-            const SizedBox(width: 6),
-            Text(
-              title.toUpperCase(),
-              style: GoogleFonts.outfit(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: color,
-                letterSpacing: 1,
-              ),
+            Row(
+              children: [
+                Container(width: 4, height: 14, color: color),
+                const SizedBox(width: 6),
+                Text(
+                  title.toUpperCase(),
+                  style: GoogleFonts.outfit(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 12,
+              runSpacing: 6,
+              children: items.map((widget) {
+                return SizedBox(
+                  width: itemWidth > 110 ? itemWidth : availableWidth,
+                  child: widget,
+                );
+              }).toList(),
             ),
           ],
-        ),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 16,
-          runSpacing: 6,
-          children: items,
-        ),
-      ],
+        );
+      },
     );
   }
 
   Widget _item(String label, String value) {
     if (value.trim().isEmpty) return const SizedBox.shrink();
-    return SizedBox(
-      width: 140,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.outfit(
-              fontSize: 10,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.outfit(
+            fontSize: 10,
+            color: Colors.grey.shade600,
+            fontWeight: FontWeight.w500,
           ),
-          Text(
-            value,
-            style: GoogleFonts.outfit(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.outfit(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

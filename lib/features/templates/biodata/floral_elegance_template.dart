@@ -150,7 +150,7 @@ class FloralEleganceTemplate extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 120,
+            width: 110,
             child: Text(
               label,
               style: GoogleFonts.outfit(
