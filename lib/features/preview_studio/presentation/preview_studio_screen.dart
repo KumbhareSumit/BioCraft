@@ -14,16 +14,25 @@ import '../../../core/widgets/color_picker_widget.dart';
 import '../../biodata_creator/logic/biodata_provider.dart';
 import '../../invitation_creator/logic/invitation_provider.dart';
 import '../../resume_creator/logic/resume_provider.dart';
+import '../../templates/biodata/emerald_regal_template.dart';
 import '../../templates/biodata/floral_elegance_template.dart';
 import '../../templates/biodata/modern_minimal_template.dart';
+import '../../templates/biodata/pastel_lavender_template.dart';
 import '../../templates/biodata/royal_gold_template.dart';
+import '../../templates/biodata/ruby_divine_template.dart';
 import '../../templates/biodata/vintage_traditional_template.dart';
+import '../../templates/invitation/baby_cradle_card.dart';
 import '../../templates/invitation/floral_festive_card.dart';
+import '../../templates/invitation/midnight_gold_card.dart';
 import '../../templates/invitation/minimal_chic_card.dart';
 import '../../templates/invitation/modern_party_card.dart';
 import '../../templates/invitation/royal_wedding_card.dart';
+import '../../templates/invitation/toran_grihapravesh_card.dart';
+import '../../templates/resume/academic_scholar_resume.dart';
+import '../../templates/resume/compact_grid_resume.dart';
 import '../../templates/resume/creative_minimal_resume.dart';
 import '../../templates/resume/executive_clean_resume.dart';
+import '../../templates/resume/infographic_teal_resume.dart';
 import '../../templates/resume/modern_tech_resume.dart';
 import '../logic/preview_provider.dart';
 
@@ -46,20 +55,29 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
 
   final List<Map<String, String>> _biodataTemplates = [
     {'id': 'royal_gold', 'name': 'Royal Gold', 'icon': '👑'},
+    {'id': 'emerald_regal', 'name': 'Emerald Regal', 'icon': '💎'},
     {'id': 'floral_elegance', 'name': 'Floral Bloom', 'icon': '🌸'},
+    {'id': 'pastel_lavender', 'name': 'Pastel Lavender', 'icon': '🪻'},
+    {'id': 'ruby_divine', 'name': 'Ruby Divine', 'icon': '🚩'},
     {'id': 'modern_minimal', 'name': 'Modern Minimal', 'icon': '✨'},
     {'id': 'vintage_traditional', 'name': 'Traditional Classic', 'icon': '📜'},
   ];
 
   final List<Map<String, String>> _invitationTemplates = [
     {'id': 'royal_wedding', 'name': 'Royal Wedding', 'icon': '💍'},
+    {'id': 'midnight_gold', 'name': 'Midnight Gold', 'icon': '🌟'},
     {'id': 'floral_festive', 'name': 'Festive Floral', 'icon': '🌸'},
+    {'id': 'baby_cradle', 'name': 'Baby & Cradle', 'icon': '🍼'},
+    {'id': 'toran_grihapravesh', 'name': 'Griha Pravesh', 'icon': '🪔'},
     {'id': 'modern_party', 'name': 'Party & Birthday', 'icon': '🎉'},
     {'id': 'minimal_chic', 'name': 'Minimal Chic', 'icon': '✨'},
   ];
 
   final List<Map<String, String>> _resumeTemplates = [
     {'id': 'modern_tech', 'name': 'Modern Tech', 'icon': '💻'},
+    {'id': 'infographic_teal', 'name': 'Infographic Teal', 'icon': '📊'},
+    {'id': 'academic_scholar', 'name': 'Academic Scholar', 'icon': '🎓'},
+    {'id': 'compact_grid', 'name': 'Compact Grid', 'icon': '⚡'},
     {'id': 'executive_clean', 'name': 'Executive ATS', 'icon': '👔'},
     {'id': 'creative_minimal', 'name': 'Creative Pro', 'icon': '🎨'},
   ];
@@ -454,8 +472,14 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
       case StudioCategory.biodata:
         final biodata = context.watch<BiodataProvider>().currentBiodata;
         switch (biodata.templateId) {
+          case 'emerald_regal':
+            return EmeraldRegalTemplate(biodata: biodata);
           case 'floral_elegance':
             return FloralEleganceTemplate(biodata: biodata);
+          case 'pastel_lavender':
+            return PastelLavenderTemplate(biodata: biodata);
+          case 'ruby_divine':
+            return RubyDivineTemplate(biodata: biodata);
           case 'modern_minimal':
             return ModernMinimalTemplate(biodata: biodata);
           case 'vintage_traditional':
@@ -468,8 +492,14 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
       case StudioCategory.invitation:
         final invitation = context.watch<InvitationProvider>().currentInvitation;
         switch (invitation.templateId) {
+          case 'midnight_gold':
+            return MidnightGoldCard(invitation: invitation);
           case 'floral_festive':
             return FloralFestiveCard(invitation: invitation);
+          case 'baby_cradle':
+            return BabyCradleCard(invitation: invitation);
+          case 'toran_grihapravesh':
+            return ToranGrihapraveshCard(invitation: invitation);
           case 'modern_party':
             return ModernPartyCard(invitation: invitation);
           case 'minimal_chic':
@@ -482,6 +512,12 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
       case StudioCategory.resume:
         final resume = context.watch<ResumeProvider>().currentResume;
         switch (resume.templateId) {
+          case 'infographic_teal':
+            return InfographicTealResume(resume: resume);
+          case 'academic_scholar':
+            return AcademicScholarResume(resume: resume);
+          case 'compact_grid':
+            return CompactGridResume(resume: resume);
           case 'executive_clean':
             return ExecutiveCleanResume(resume: resume);
           case 'creative_minimal':
