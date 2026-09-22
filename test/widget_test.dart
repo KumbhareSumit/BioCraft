@@ -1,30 +1,36 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:biocraft/main.dart';
+import 'package:biocraft/features/biodata_creator/data/models/biodata_model.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('App renders BioCraft title smoke test', (WidgetTester tester) async {
+    await tester.pumpWidget(const BioCraftApp());
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('BioCraft'), findsOneWidget);
+    expect(find.text('Featured Biodata Templates'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  test('BiodataModel serialization and copyWith test', () {
+    final bio = BiodataModel(
+      id: '123',
+      fullName: 'Aarav Sharma',
+      occupation: 'Software Engineer',
+      templateId: 'royal_gold',
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(bio.fullName, 'Aarav Sharma');
+    expect(bio.occupation, 'Software Engineer');
+    expect(bio.templateId, 'royal_gold');
+
+    final updated = bio.copyWith(fullName: 'Rohan Sharma', templateId: 'floral_elegance');
+    expect(updated.fullName, 'Rohan Sharma');
+    expect(updated.occupation, 'Software Engineer');
+    expect(updated.templateId, 'floral_elegance');
+
+    final json = bio.toJson();
+    final restored = BiodataModel.fromJson(json);
+    expect(restored.id, bio.id);
+    expect(restored.fullName, bio.fullName);
   });
 }
