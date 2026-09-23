@@ -2,7 +2,7 @@ import 'dart:convert';
 
 class BiodataModel {
   final String id;
-  final String templateId; // 'royal_gold', 'floral_elegance', 'modern_minimal', 'vintage_traditional'
+  final String templateId; // 'royal_gold', 'floral_elegance', 'modern_minimal', 'vintage_traditional', etc.
   final String religionHeading;
   final String religion;
   final int primaryColorValue;
@@ -41,8 +41,12 @@ class BiodataModel {
   final String motherName;
   final String motherOccupation;
   final String brothersCount;
+  final String brotherRelation; // 'Elder', 'Younger', 'Elder & Younger', ''
+  final String brotherMaritalStatus; // 'Married', 'Unmarried', 'Married & Unmarried', ''
   final String brothersDetails;
   final String sistersCount;
+  final String sisterRelation; // 'Elder', 'Younger', 'Elder & Younger', ''
+  final String sisterMaritalStatus; // 'Married', 'Unmarried', 'Married & Unmarried', ''
   final String sistersDetails;
   final String familyType; // Nuclear, Joint
   final String familyValues; // Traditional, Moderate, Liberal
@@ -50,7 +54,9 @@ class BiodataModel {
 
   // Contact Info
   final String contactPerson;
+  final String contactType; // "Father's Number", "Mother's Number", "Candidate's Number (Self)", "Brother's Number", "Guardian / Relative"
   final String contactNumber;
+  final String alternateContactType; // "Father's Number", "Mother's Number", "Candidate's Number (Self)", "Brother's Number", "Guardian / Relative"
   final String alternateNumber;
   final String email;
   final String residentialAddress;
@@ -95,14 +101,20 @@ class BiodataModel {
     this.motherName = '',
     this.motherOccupation = '',
     this.brothersCount = '',
+    this.brotherRelation = '',
+    this.brotherMaritalStatus = '',
     this.brothersDetails = '',
     this.sistersCount = '',
+    this.sisterRelation = '',
+    this.sisterMaritalStatus = '',
     this.sistersDetails = '',
     this.familyType = 'Nuclear',
     this.familyValues = 'Moderate',
     this.maternalUncleDetails = '',
     this.contactPerson = '',
+    this.contactType = "Father's Number",
     this.contactNumber = '',
+    this.alternateContactType = "Mother's Number",
     this.alternateNumber = '',
     this.email = '',
     this.residentialAddress = '',
@@ -112,6 +124,54 @@ class BiodataModel {
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
+
+  String get displayBrothers {
+    if (brothersDetails.isNotEmpty) return brothersDetails;
+    if (brothersCount.isEmpty || brothersCount == '0' || brothersCount.toLowerCase() == 'none') {
+      return brothersCount.isNotEmpty ? brothersCount : 'None';
+    }
+    final List<String> traits = [];
+    if (brotherRelation.isNotEmpty) traits.add(brotherRelation);
+    if (brotherMaritalStatus.isNotEmpty) traits.add(brotherMaritalStatus);
+    
+    final countStr = '$brothersCount Brother${brothersCount != '1' ? 's' : ''}';
+    if (traits.isNotEmpty) {
+      return '$countStr (${traits.join(', ')})';
+    }
+    return countStr;
+  }
+
+  String get displaySisters {
+    if (sistersDetails.isNotEmpty) return sistersDetails;
+    if (sistersCount.isEmpty || sistersCount == '0' || sistersCount.toLowerCase() == 'none') {
+      return sistersCount.isNotEmpty ? sistersCount : 'None';
+    }
+    final List<String> traits = [];
+    if (sisterRelation.isNotEmpty) traits.add(sisterRelation);
+    if (sisterMaritalStatus.isNotEmpty) traits.add(sisterMaritalStatus);
+    
+    final countStr = '$sistersCount Sister${sistersCount != '1' ? 's' : ''}';
+    if (traits.isNotEmpty) {
+      return '$countStr (${traits.join(', ')})';
+    }
+    return countStr;
+  }
+
+  String get displayPrimaryContact {
+    if (contactNumber.isEmpty) return '';
+    if (contactType.isNotEmpty && contactType != 'None') {
+      return '$contactNumber ($contactType)';
+    }
+    return contactNumber;
+  }
+
+  String get displayAlternateContact {
+    if (alternateNumber.isEmpty) return '';
+    if (alternateContactType.isNotEmpty && alternateContactType != 'None') {
+      return '$alternateNumber ($alternateContactType)';
+    }
+    return alternateNumber;
+  }
 
   BiodataModel copyWith({
     String? id,
@@ -148,14 +208,20 @@ class BiodataModel {
     String? motherName,
     String? motherOccupation,
     String? brothersCount,
+    String? brotherRelation,
+    String? brotherMaritalStatus,
     String? brothersDetails,
     String? sistersCount,
+    String? sisterRelation,
+    String? sisterMaritalStatus,
     String? sistersDetails,
     String? familyType,
     String? familyValues,
     String? maternalUncleDetails,
     String? contactPerson,
+    String? contactType,
     String? contactNumber,
+    String? alternateContactType,
     String? alternateNumber,
     String? email,
     String? residentialAddress,
@@ -199,14 +265,20 @@ class BiodataModel {
       motherName: motherName ?? this.motherName,
       motherOccupation: motherOccupation ?? this.motherOccupation,
       brothersCount: brothersCount ?? this.brothersCount,
+      brotherRelation: brotherRelation ?? this.brotherRelation,
+      brotherMaritalStatus: brotherMaritalStatus ?? this.brotherMaritalStatus,
       brothersDetails: brothersDetails ?? this.brothersDetails,
       sistersCount: sistersCount ?? this.sistersCount,
+      sisterRelation: sisterRelation ?? this.sisterRelation,
+      sisterMaritalStatus: sisterMaritalStatus ?? this.sisterMaritalStatus,
       sistersDetails: sistersDetails ?? this.sistersDetails,
       familyType: familyType ?? this.familyType,
       familyValues: familyValues ?? this.familyValues,
       maternalUncleDetails: maternalUncleDetails ?? this.maternalUncleDetails,
       contactPerson: contactPerson ?? this.contactPerson,
+      contactType: contactType ?? this.contactType,
       contactNumber: contactNumber ?? this.contactNumber,
+      alternateContactType: alternateContactType ?? this.alternateContactType,
       alternateNumber: alternateNumber ?? this.alternateNumber,
       email: email ?? this.email,
       residentialAddress: residentialAddress ?? this.residentialAddress,
@@ -253,14 +325,20 @@ class BiodataModel {
       'motherName': motherName,
       'motherOccupation': motherOccupation,
       'brothersCount': brothersCount,
+      'brotherRelation': brotherRelation,
+      'brotherMaritalStatus': brotherMaritalStatus,
       'brothersDetails': brothersDetails,
       'sistersCount': sistersCount,
+      'sisterRelation': sisterRelation,
+      'sisterMaritalStatus': sisterMaritalStatus,
       'sistersDetails': sistersDetails,
       'familyType': familyType,
       'familyValues': familyValues,
       'maternalUncleDetails': maternalUncleDetails,
       'contactPerson': contactPerson,
+      'contactType': contactType,
       'contactNumber': contactNumber,
+      'alternateContactType': alternateContactType,
       'alternateNumber': alternateNumber,
       'email': email,
       'residentialAddress': residentialAddress,
@@ -307,14 +385,20 @@ class BiodataModel {
       motherName: map['motherName'] ?? '',
       motherOccupation: map['motherOccupation'] ?? '',
       brothersCount: map['brothersCount'] ?? '',
+      brotherRelation: map['brotherRelation'] ?? '',
+      brotherMaritalStatus: map['brotherMaritalStatus'] ?? '',
       brothersDetails: map['brothersDetails'] ?? '',
       sistersCount: map['sistersCount'] ?? '',
+      sisterRelation: map['sisterRelation'] ?? '',
+      sisterMaritalStatus: map['sisterMaritalStatus'] ?? '',
       sistersDetails: map['sistersDetails'] ?? '',
       familyType: map['familyType'] ?? 'Nuclear',
       familyValues: map['familyValues'] ?? 'Moderate',
       maternalUncleDetails: map['maternalUncleDetails'] ?? '',
       contactPerson: map['contactPerson'] ?? '',
+      contactType: map['contactType'] ?? "Father's Number",
       contactNumber: map['contactNumber'] ?? '',
+      alternateContactType: map['alternateContactType'] ?? "Mother's Number",
       alternateNumber: map['alternateNumber'] ?? '',
       email: map['email'] ?? '',
       residentialAddress: map['residentialAddress'] ?? '',
@@ -366,13 +450,20 @@ class BiodataModel {
       motherName: 'Sunita Sharma',
       motherOccupation: 'Home Maker',
       brothersCount: '1',
-      brothersDetails: '1 Younger Brother (Studying MBA)',
+      brotherRelation: 'Younger',
+      brotherMaritalStatus: 'Unmarried',
+      brothersDetails: '1 Younger Brother (Studying MBA, Unmarried)',
       sistersCount: '0',
+      sisterRelation: 'None',
+      sisterMaritalStatus: 'None',
       sistersDetails: 'None',
       familyType: 'Nuclear',
       familyValues: 'Moderate / Cultured',
       contactPerson: 'Rajesh Sharma (Father)',
+      contactType: "Father's Number",
       contactNumber: '+91 98765 43210',
+      alternateContactType: "Candidate's Number (Self)",
+      alternateNumber: '+91 98231 23456',
       email: 'aarav.sharma.biodata@gmail.com',
       residentialAddress: 'Flat 402, Royal Palms, Baner, Pune - 411045',
       nativePlace: 'Pune, Maharashtra',

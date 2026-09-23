@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 import '../../../app/theme/app_colors.dart';
@@ -104,8 +105,12 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
       );
 
       final String docTitle = _getDocTitle();
+      final pageFormat = _selectedCategory == StudioCategory.invitation
+          ? PdfPageFormat.a5
+          : PdfPageFormat.a4;
+
       final pdfBytes = imageBytes != null
-          ? await PdfGenerator.generatePdfFromRenderedImage(imageBytes)
+          ? await PdfGenerator.generatePdfFromRenderedImage(imageBytes, pageFormat: pageFormat)
           : await _generateFallbackPdf();
 
       await Printing.layoutPdf(
@@ -180,8 +185,12 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
       );
 
       final String docTitle = _getDocTitle();
+      final pageFormat = _selectedCategory == StudioCategory.invitation
+          ? PdfPageFormat.a5
+          : PdfPageFormat.a4;
+
       final pdfBytes = imageBytes != null
-          ? await PdfGenerator.generatePdfFromRenderedImage(imageBytes)
+          ? await PdfGenerator.generatePdfFromRenderedImage(imageBytes, pageFormat: pageFormat)
           : await _generateFallbackPdf();
 
       await ShareService.sharePdf(
@@ -360,89 +369,105 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
   }
 
   Widget _buildCanvasArea(PreviewProvider previewProvider) {
+    final double canvasWidth = _selectedCategory == StudioCategory.invitation ? 420 : 595;
+    final double canvasMinHeight = _selectedCategory == StudioCategory.invitation ? 595 : 842;
+
     return Container(
       color: const Color(0xFFF0EBE1),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          InteractiveViewer(
-            transformationController: _transformController,
-            minScale: 0.35,
-            maxScale: 2.5,
-            boundaryMargin: const EdgeInsets.all(80),
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              InteractiveViewer(
+                transformationController: _transformController,
+                minScale: 0.2,
+                maxScale: 3.0,
+                boundaryMargin: const EdgeInsets.all(120),
+                constrained: false,
                 child: Center(
-                  child: Container(
-                    constraints: BoxConstraints(
-                      maxWidth: _selectedCategory == StudioCategory.invitation ? 500 : 595,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 20,
-                          spreadRadius: 4,
-                          offset: const Offset(0, 8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: SizedBox(
+                      width: canvasWidth,
+                      child: Container(
+                        constraints: BoxConstraints(
+                          minHeight: canvasMinHeight,
                         ),
-                      ],
-                    ),
-                    child: RepaintBoundary(
-                      key: _previewContainerKey,
-                      child: _buildActiveTemplateWidget(),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.15),
+                              blurRadius: 20,
+                              spreadRadius: 4,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: RepaintBoundary(
+                          key: _previewContainerKey,
+                          child: _buildActiveTemplateWidget(),
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ),
-          Positioned(
-            top: 16,
-            right: 16,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.9),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 8,
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                      ),
+                    ],
                   ),
-                ],
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.zoom_in, size: 20),
+                        tooltip: 'Zoom In',
+                        onPressed: () {
+                          _transformController.value =
+                              Matrix4.diagonal3Values(1.15, 1.15, 1.0) * _transformController.value;
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.zoom_out, size: 20),
+                        tooltip: 'Zoom Out',
+                        onPressed: () {
+                          _transformController.value =
+                              Matrix4.diagonal3Values(0.85, 0.85, 1.0) * _transformController.value;
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.fit_screen, size: 20),
+                        tooltip: 'Fit Screen',
+                        onPressed: () {
+                          final double availableWidth = constraints.maxWidth - 48;
+                          final double targetScale = (availableWidth / canvasWidth).clamp(0.25, 1.0);
+                          _transformController.value = Matrix4.diagonal3Values(targetScale, targetScale, 1.0);
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.refresh, size: 20),
+                        tooltip: 'Reset Zoom (100%)',
+                        onPressed: () {
+                          _transformController.value = Matrix4.identity();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.zoom_in, size: 20),
-                    tooltip: 'Zoom In',
-                    onPressed: () {
-                      _transformController.value =
-                          Matrix4.diagonal3Values(1.15, 1.15, 1.0) * _transformController.value;
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.zoom_out, size: 20),
-                    tooltip: 'Zoom Out',
-                    onPressed: () {
-                      _transformController.value =
-                          Matrix4.diagonal3Values(0.85, 0.85, 1.0) * _transformController.value;
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh, size: 20),
-                    tooltip: 'Reset Zoom',
-                    onPressed: () {
-                      _transformController.value = Matrix4.identity();
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
           if (previewProvider.isExporting)
             Container(
               color: Colors.black.withValues(alpha: 0.4),
@@ -463,9 +488,11 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
               ),
             ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  ),
+);
+}
 
   Widget _buildActiveTemplateWidget() {
     switch (_selectedCategory) {

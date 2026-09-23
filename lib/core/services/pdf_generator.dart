@@ -5,19 +5,22 @@ import '../../features/biodata_creator/data/models/biodata_model.dart';
 import '../../features/invitation_creator/data/models/invitation_model.dart';
 
 class PdfGenerator {
-  static Future<Uint8List> generatePdfFromRenderedImage(Uint8List imageBytes) async {
+  static Future<Uint8List> generatePdfFromRenderedImage(
+    Uint8List imageBytes, {
+    PdfPageFormat pageFormat = PdfPageFormat.a4,
+  }) async {
     final pdf = pw.Document();
     final image = pw.MemoryImage(imageBytes);
 
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(16),
+        pageFormat: pageFormat,
+        margin: pw.EdgeInsets.zero,
         build: (pw.Context context) {
           return pw.Center(
             child: pw.Image(
               image,
-              fit: pw.BoxFit.contain,
+              fit: pw.BoxFit.fill,
             ),
           );
         },

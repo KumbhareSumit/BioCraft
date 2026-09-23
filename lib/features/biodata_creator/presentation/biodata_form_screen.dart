@@ -1,12 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/date_formatters.dart';
 import '../../../core/utils/responsive_helper.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/custom_text_field.dart';
+import '../../templates/biodata/widgets/biodata_photo_frame.dart';
 import '../data/models/biodata_model.dart';
 import '../logic/biodata_provider.dart';
 
@@ -68,6 +71,13 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
   String _selectedManglik = 'No';
   String _selectedFamilyType = 'Nuclear';
   String _selectedFamilyValues = 'Moderate';
+  String _selectedBrotherRelation = 'Younger';
+  String _selectedBrotherMaritalStatus = 'Unmarried';
+  String _selectedSisterRelation = 'Younger';
+  String _selectedSisterMaritalStatus = 'Unmarried';
+  String _selectedContactType = "Father's Number";
+  String _selectedAltContactType = "Mother's Number";
+  String? _profileImagePath;
   String? _loadedBiodataId;
 
   @override
@@ -180,7 +190,16 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
     _selectedManglik = bio.manglik.isNotEmpty ? bio.manglik : 'No';
     _selectedFamilyType = bio.familyType.isNotEmpty ? bio.familyType : 'Nuclear';
     _selectedFamilyValues = bio.familyValues.isNotEmpty ? bio.familyValues : 'Moderate';
+    _selectedBrotherRelation = bio.brotherRelation.isNotEmpty ? bio.brotherRelation : 'Younger';
+    _selectedBrotherMaritalStatus = bio.brotherMaritalStatus.isNotEmpty ? bio.brotherMaritalStatus : 'Unmarried';
+    _selectedSisterRelation = bio.sisterRelation.isNotEmpty ? bio.sisterRelation : 'Younger';
+    _selectedSisterMaritalStatus = bio.sisterMaritalStatus.isNotEmpty ? bio.sisterMaritalStatus : 'Unmarried';
+    _selectedContactType = bio.contactType.isNotEmpty ? bio.contactType : "Father's Number";
+    _selectedAltContactType = bio.alternateContactType.isNotEmpty ? bio.alternateContactType : "Mother's Number";
+    _profileImagePath = bio.profileImagePath;
   }
+
+
 
   @override
   void dispose() {
@@ -247,6 +266,7 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
         rashi: _rashiController.text.trim(),
         nakshatra: _nakshatraController.text.trim(),
         manglik: _selectedManglik,
+        profileImagePath: _profileImagePath,
         highestEducation: _educationController.text.trim(),
         educationDetails: _eduDetailsController.text.trim(),
         occupation: _occupationController.text.trim(),
@@ -258,14 +278,20 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
         motherName: _motherNameController.text.trim(),
         motherOccupation: _motherOccController.text.trim(),
         brothersCount: _brothersCountController.text.trim(),
+        brotherRelation: _selectedBrotherRelation,
+        brotherMaritalStatus: _selectedBrotherMaritalStatus,
         brothersDetails: _brothersDetailsController.text.trim(),
         sistersCount: _sistersCountController.text.trim(),
+        sisterRelation: _selectedSisterRelation,
+        sisterMaritalStatus: _selectedSisterMaritalStatus,
         sistersDetails: _sistersDetailsController.text.trim(),
         familyType: _selectedFamilyType,
         familyValues: _selectedFamilyValues,
         maternalUncleDetails: _maternalUncleController.text.trim(),
         contactPerson: _contactPersonController.text.trim(),
+        contactType: _selectedContactType,
         contactNumber: _contactNumController.text.trim(),
+        alternateContactType: _selectedAltContactType,
         alternateNumber: _altNumController.text.trim(),
         email: _emailController.text.trim(),
         residentialAddress: _addressController.text.trim(),
@@ -273,6 +299,41 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
         expectations: _expectationsController.text.trim(),
       ),
     );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 1200,
+        maxHeight: 1200,
+        imageQuality: 88,
+      );
+      if (pickedFile != null) {
+        setState(() {
+          _profileImagePath = pickedFile.path;
+        });
+        _syncToProvider();
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to pick image: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _removeImage() {
+    setState(() {
+      _profileImagePath = null;
+    });
+    _syncToProvider();
   }
 
   void _fillSampleData() {
@@ -308,15 +369,21 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
       _motherNameController.text = 'Sunita Sharma';
       _motherOccController.text = 'Homemaker';
       _brothersCountController.text = '1';
-      _brothersDetailsController.text = 'Younger Brother (Studying MBA)';
+      _selectedBrotherRelation = 'Younger';
+      _selectedBrotherMaritalStatus = 'Unmarried';
+      _brothersDetailsController.text = 'Studying MBA';
       _sistersCountController.text = '0';
+      _selectedSisterRelation = 'None';
+      _selectedSisterMaritalStatus = 'None';
       _sistersDetailsController.text = 'None';
       _selectedFamilyType = 'Nuclear';
       _selectedFamilyValues = 'Moderate';
       _maternalUncleController.text = 'Dr. Rajesh Pandey (Nagpur)';
 
       _contactPersonController.text = 'Devendra Sharma (Father)';
+      _selectedContactType = "Father's Number";
       _contactNumController.text = '+91 98765 43210';
+      _selectedAltContactType = "Candidate's Number (Self)";
       _altNumController.text = '+91 98231 23456';
       _emailController.text = 'aarav.sharma@example.com';
       _addressController.text = 'A-402, Royal Palms Society, Baner, Pune - 411045';
@@ -528,10 +595,134 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
     }
   }
 
+  Widget _buildPhotoUploadSection() {
+    final hasImage = _profileImagePath != null && _profileImagePath!.trim().isNotEmpty;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 18),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              BiodataPhotoFrame(
+                imagePath: _profileImagePath,
+                width: 76,
+                height: 96,
+                borderRadius: 8,
+                borderColor: AppColors.primary,
+                innerBorderColor: AppColors.secondaryDark,
+              ),
+              if (hasImage)
+                Positioned(
+                  top: -6,
+                  right: -6,
+                  child: InkWell(
+                    onTap: _removeImage,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.close, size: 12, color: Colors.white),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'Candidate Photo',
+                      style: GoogleFonts.outfit(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        'Top-Right Frame',
+                        style: GoogleFonts.outfit(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Optional. Appears in the top-right corner of all templates.',
+                  style: GoogleFonts.outfit(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => _pickImage(ImageSource.gallery),
+                      icon: const Icon(Icons.photo_library_outlined, size: 15),
+                      label: Text(hasImage ? 'Change' : 'Choose Photo'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    if (!kIsWeb)
+                      OutlinedButton.icon(
+                        onPressed: () => _pickImage(ImageSource.camera),
+                        icon: const Icon(Icons.camera_alt_outlined, size: 15),
+                        label: const Text('Camera'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.textPrimary,
+                          side: const BorderSide(color: AppColors.border),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStep1Personal() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _buildPhotoUploadSection(),
         _buildSectionTitle('Basic Details', Icons.person_outline),
         const SizedBox(height: 12),
         CustomTextField(
@@ -790,7 +981,7 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Family Background', Icons.family_restroom_outlined),
+        _buildSectionTitle('Parents Details', Icons.family_restroom_outlined),
         const SizedBox(height: 12),
         CustomTextField(
           controller: _fatherNameController,
@@ -819,29 +1010,114 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
           hint: 'e.g. Homemaker / Teacher',
           prefixIcon: const Icon(Icons.work_outline),
         ),
-        const SizedBox(height: 14),
-        Row(
-          children: [
-            Expanded(
-              child: CustomTextField(
+        const SizedBox(height: 20),
+
+        _buildSectionTitle('Brothers Details', Icons.people_outline),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            children: [
+              CustomTextField(
                 controller: _brothersCountController,
-                label: 'Brothers',
-                hint: 'e.g. 1 (Married)',
-                prefixIcon: const Icon(Icons.people_outline),
+                label: 'No. of Brothers',
+                hint: 'e.g. 1 (or 0 for None)',
+                prefixIcon: const Icon(Icons.numbers),
+                keyboardType: TextInputType.text,
               ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: CustomTextField(
-                controller: _sistersCountController,
-                label: 'Sisters',
-                hint: 'e.g. 0',
-                prefixIcon: const Icon(Icons.people_outline),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildDropdown(
+                      label: 'Brother Relation',
+                      value: _selectedBrotherRelation,
+                      items: ['Younger', 'Elder', 'Both (Elder & Younger)', 'None'],
+                      onChanged: (val) => setState(() => _selectedBrotherRelation = val!),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildDropdown(
+                      label: 'Marital Status',
+                      value: _selectedBrotherMaritalStatus,
+                      items: ['Unmarried', 'Married', 'Both (Married & Unmarried)', 'None'],
+                      onChanged: (val) => setState(() => _selectedBrotherMaritalStatus = val!),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+              CustomTextField(
+                controller: _brothersDetailsController,
+                label: 'Brother Details / Profession (Optional)',
+                hint: 'e.g. Software Engineer / Studying MBA',
+                prefixIcon: const Icon(Icons.info_outline),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 20),
+
+        _buildSectionTitle('Sisters Details', Icons.people_outline),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            children: [
+              CustomTextField(
+                controller: _sistersCountController,
+                label: 'No. of Sisters',
+                hint: 'e.g. 1 (or 0 for None)',
+                prefixIcon: const Icon(Icons.numbers),
+                keyboardType: TextInputType.text,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildDropdown(
+                      label: 'Sister Relation',
+                      value: _selectedSisterRelation,
+                      items: ['Younger', 'Elder', 'Both (Elder & Younger)', 'None'],
+                      onChanged: (val) => setState(() => _selectedSisterRelation = val!),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildDropdown(
+                      label: 'Marital Status',
+                      value: _selectedSisterMaritalStatus,
+                      items: ['Unmarried', 'Married', 'Both (Married & Unmarried)', 'None'],
+                      onChanged: (val) => setState(() => _selectedSisterMaritalStatus = val!),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              CustomTextField(
+                controller: _sistersDetailsController,
+                label: 'Sister Details / Profession (Optional)',
+                hint: 'e.g. Married & settled in Pune / Studying',
+                prefixIcon: const Icon(Icons.info_outline),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        _buildSectionTitle('Family Culture & Relatives', Icons.account_balance_outlined),
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
@@ -878,37 +1154,83 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Contact & Expectations', Icons.contact_phone_outlined),
+        _buildSectionTitle('Contact Details', Icons.contact_phone_outlined),
         const SizedBox(height: 12),
         CustomTextField(
           controller: _contactPersonController,
-          label: 'Primary Contact Person',
-          hint: 'e.g. Devendra Sharma (Father)',
+          label: 'Primary Contact Person Name',
+          hint: 'e.g. Shri Devendra Sharma',
           prefixIcon: const Icon(Icons.badge_outlined),
         ),
         const SizedBox(height: 14),
-        Row(
-          children: [
-            Expanded(
-              child: CustomTextField(
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDropdown(
+                label: 'Primary Number Belongs To',
+                value: _selectedContactType,
+                items: [
+                  "Father's Number",
+                  "Mother's Number",
+                  "Candidate's Number (Self)",
+                  "Brother's Number",
+                  "Guardian / Relative",
+                  "Family Contact",
+                ],
+                onChanged: (val) => setState(() => _selectedContactType = val!),
+              ),
+              const SizedBox(height: 12),
+              CustomTextField(
                 controller: _contactNumController,
-                label: 'Contact Number',
+                label: 'Primary Contact Number',
                 hint: 'e.g. +91 98765 43210',
                 prefixIcon: const Icon(Icons.phone_outlined),
                 keyboardType: TextInputType.phone,
               ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: CustomTextField(
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDropdown(
+                label: 'Alternate Number Belongs To (Optional)',
+                value: _selectedAltContactType,
+                items: [
+                  "Mother's Number",
+                  "Father's Number",
+                  "Candidate's Number (Self)",
+                  "Brother's Number",
+                  "Guardian / Relative",
+                  "None / Other",
+                ],
+                onChanged: (val) => setState(() => _selectedAltContactType = val!),
+              ),
+              const SizedBox(height: 12),
+              CustomTextField(
                 controller: _altNumController,
-                label: 'Alternate Number',
+                label: 'Alternate Contact Number',
                 hint: 'e.g. +91 98231 23456',
                 prefixIcon: const Icon(Icons.phone_iphone_outlined),
                 keyboardType: TextInputType.phone,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 14),
         CustomTextField(

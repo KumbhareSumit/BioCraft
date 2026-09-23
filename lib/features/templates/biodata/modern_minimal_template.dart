@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../biodata_creator/data/models/biodata_model.dart';
+import 'widgets/biodata_photo_frame.dart';
 
 class ModernMinimalTemplate extends StatelessWidget {
   final BiodataModel biodata;
@@ -10,6 +11,7 @@ class ModernMinimalTemplate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primaryColor = Color(biodata.primaryColorValue);
+    final hasPhoto = biodata.profileImagePath != null && biodata.profileImagePath!.trim().isNotEmpty;
 
     return Container(
       width: double.infinity,
@@ -32,43 +34,55 @@ class ModernMinimalTemplate extends StatelessWidget {
           // Minimalist Header Bar
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
             decoration: BoxDecoration(
               color: primaryColor,
               borderRadius: BorderRadius.circular(6),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (biodata.religionHeading.isNotEmpty)
-                  Text(
-                    biodata.religionHeading,
-                    style: GoogleFonts.outfit(
-                      fontSize: 12,
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                Text(
-                  biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
-                  style: GoogleFonts.outfit(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (biodata.religionHeading.isNotEmpty)
+                        Text(
+                          biodata.religionHeading,
+                          style: GoogleFonts.outfit(
+                            fontSize: 12,
+                            color: Colors.white70,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      Text(
+                        biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
+                        style: GoogleFonts.outfit(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                if (biodata.occupation.isNotEmpty || biodata.highestEducation.isNotEmpty)
-                  Text(
-                    '${biodata.occupation} | ${biodata.highestEducation}',
-                    style: GoogleFonts.outfit(
-                      fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.85),
-                    ),
+                if (hasPhoto) ...[
+                  const SizedBox(width: 14),
+                  BiodataPhotoFrame(
+                    imagePath: biodata.profileImagePath,
+                    width: 85,
+                    height: 105,
+                    borderRadius: 6,
+                    borderWidth: 2,
+                    borderColor: Colors.white,
+                    showShadow: false,
                   ),
+                ],
               ],
             ),
           ),
           const SizedBox(height: 16),
+
 
           _buildGridSection('Personal Info', [
             _item('Date of Birth', biodata.dateOfBirth),
@@ -99,15 +113,16 @@ class ModernMinimalTemplate extends StatelessWidget {
             _item('Father Occupation', biodata.fatherOccupation),
             _item('Mother\'s Name', biodata.motherName),
             _item('Mother Occupation', biodata.motherOccupation),
-            _item('Brothers', biodata.brothersDetails.isNotEmpty ? biodata.brothersDetails : biodata.brothersCount),
-            _item('Sisters', biodata.sistersDetails.isNotEmpty ? biodata.sistersDetails : biodata.sistersCount),
+            _item('Brothers', biodata.displayBrothers),
+            _item('Sisters', biodata.displaySisters),
           ], primaryColor),
 
           const SizedBox(height: 12),
 
           _buildGridSection('Contact Info', [
             _item('Contact Person', biodata.contactPerson),
-            _item('Mobile', biodata.contactNumber),
+            _item('Mobile', biodata.displayPrimaryContact),
+            _item('Alt Mobile', biodata.displayAlternateContact),
             _item('Email', biodata.email),
             _item('Address', biodata.residentialAddress),
           ], primaryColor),

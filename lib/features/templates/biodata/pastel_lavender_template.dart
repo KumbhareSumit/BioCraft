@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../biodata_creator/data/models/biodata_model.dart';
+import 'widgets/biodata_photo_frame.dart';
 
 class PastelLavenderTemplate extends StatelessWidget {
   final BiodataModel biodata;
@@ -9,9 +10,10 @@ class PastelLavenderTemplate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const lavenderPrimary = Color(0xFF6D28D9);
-    const softLilacBg = Color(0xFFFAF5FF);
-    const cardBorder = Color(0xFFE9D5FF);
+    final lavenderPrimary = Color(biodata.primaryColorValue);
+    final hasPhoto = biodata.profileImagePath != null && biodata.profileImagePath!.trim().isNotEmpty;
+    const softLilacBg = Color(0xFFF5F3FF);
+    const cardBorder = Color(0xFFDDD6FE);
 
     return Container(
       width: double.infinity,
@@ -19,11 +21,11 @@ class PastelLavenderTemplate extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: cardBorder, width: 2),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: lavenderPrimary.withValues(alpha: 0.06),
-            blurRadius: 18,
-            offset: const Offset(0, 4),
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -45,143 +47,200 @@ class PastelLavenderTemplate extends StatelessWidget {
             ),
           const SizedBox(height: 4),
 
-          Text(
-            'MARRIAGE BIODATA',
-            style: GoogleFonts.outfit(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF8B5CF6),
-              letterSpacing: 2,
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Header Card
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            decoration: BoxDecoration(
-              color: softLilacBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: cardBorder),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF4C1D95),
+          if (hasPhoto)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: softLilacBg,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: cardBorder),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'MARRIAGE BIODATA',
+                            style: GoogleFonts.outfit(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF8B5CF6),
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
+                            style: GoogleFonts.outfit(
+                              fontSize: 19,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF4C1D95),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                if (biodata.highestEducation.isNotEmpty || biodata.occupation.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(width: 12),
+                  BiodataPhotoFrame(
+                    imagePath: biodata.profileImagePath,
+                    width: 90,
+                    height: 115,
+                    borderRadius: 12,
+                    borderColor: lavenderPrimary,
+                    innerBorderColor: cardBorder,
+                  ),
+                ],
+              ),
+            )
+          else ...[
+            Text(
+              'MARRIAGE BIODATA',
+              style: GoogleFonts.outfit(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF8B5CF6),
+                letterSpacing: 2,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Header Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: BoxDecoration(
+                color: softLilacBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: cardBorder),
+              ),
+              child: Column(
+                children: [
                   Text(
-                    '${biodata.highestEducation}${biodata.highestEducation.isNotEmpty && biodata.occupation.isNotEmpty ? ' • ' : ''}${biodata.occupation}',
+                    biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF6B7280),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF4C1D95),
                     ),
                   ),
                 ],
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
+            const SizedBox(height: 14),
+          ],
 
           // Sections in neat cards
           _buildCardSection(
             title: 'Personal & Astrological Details',
             icon: Icons.person_outline,
             primaryColor: lavenderPrimary,
-            children: [
-              _buildDetailRow('Date of Birth', biodata.dateOfBirth),
-              _buildDetailRow('Time of Birth', biodata.timeOfBirth),
-              _buildDetailRow('Place of Birth', biodata.placeOfBirth),
-              _buildDetailRow('Height', biodata.height),
-              _buildDetailRow('Complexion', biodata.complexion),
-              _buildDetailRow('Blood Group', biodata.bloodGroup),
-              _buildDetailRow('Marital Status', biodata.maritalStatus),
-              _buildDetailRow('Mother Tongue', biodata.motherTongue),
-              _buildDetailRow('Religion & Caste', '${biodata.religion} ${biodata.caste.isNotEmpty ? '- ${biodata.caste}' : ''} ${biodata.subCaste.isNotEmpty ? '(${biodata.subCaste})' : ''}'.trim()),
-              _buildDetailRow('Gotra & Rashi', '${biodata.gotra} ${biodata.rashi.isNotEmpty ? '/ ${biodata.rashi}' : ''}'.trim()),
-              _buildDetailRow('Nakshatra / Manglik', '${biodata.nakshatra} ${biodata.manglik.isNotEmpty ? '• Manglik: ${biodata.manglik}' : ''}'.trim()),
+            items: [
+              MapEntry('Date of Birth', biodata.dateOfBirth),
+              MapEntry('Time of Birth', biodata.timeOfBirth),
+              MapEntry('Place of Birth', biodata.placeOfBirth),
+              MapEntry('Height / Complexion', '${biodata.height}${biodata.height.isNotEmpty && biodata.complexion.isNotEmpty ? ' • ' : ''}${biodata.complexion}'.trim()),
+              MapEntry('Blood Group', biodata.bloodGroup),
+              MapEntry('Marital Status', biodata.maritalStatus),
+              MapEntry('Mother Tongue', biodata.motherTongue),
+              MapEntry('Religion & Caste', '${biodata.religion}${biodata.caste.isNotEmpty ? ' - ${biodata.caste}' : ''}${biodata.subCaste.isNotEmpty ? ' (${biodata.subCaste})' : ''}'.trim()),
+              MapEntry('Gotra & Rashi', '${biodata.gotra}${biodata.rashi.isNotEmpty ? ' / ${biodata.rashi}' : ''}'.trim()),
+              MapEntry('Nakshatra / Manglik', '${biodata.nakshatra}${biodata.nakshatra.isNotEmpty && biodata.manglik.isNotEmpty ? ' • ' : ''}${biodata.manglik.isNotEmpty ? 'Manglik: ${biodata.manglik}' : ''}'.trim()),
             ],
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
           _buildCardSection(
             title: 'Education & Professional Details',
             icon: Icons.school_outlined,
             primaryColor: lavenderPrimary,
-            children: [
-              _buildDetailRow('Highest Education', biodata.highestEducation),
-              _buildDetailRow('Degree Details', biodata.educationDetails),
-              _buildDetailRow('Occupation', biodata.occupation),
-              _buildDetailRow('Organization', biodata.companyName),
-              _buildDetailRow('Annual Income', biodata.annualIncome),
-              _buildDetailRow('Work Location', biodata.workLocation),
+            items: [
+              MapEntry('Highest Education', biodata.highestEducation),
+              MapEntry('Degree Details', biodata.educationDetails),
+              MapEntry('Occupation', biodata.occupation),
+              MapEntry('Organization', biodata.companyName),
+              MapEntry('Annual Income', biodata.annualIncome),
+              MapEntry('Work Location', biodata.workLocation),
             ],
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
           _buildCardSection(
             title: 'Family Background',
             icon: Icons.family_restroom_outlined,
             primaryColor: lavenderPrimary,
-            children: [
-              _buildDetailRow("Father's Name", biodata.fatherName),
-              _buildDetailRow("Father's Profession", biodata.fatherOccupation),
-              _buildDetailRow("Mother's Name", biodata.motherName),
-              _buildDetailRow("Mother's Profession", biodata.motherOccupation),
-              _buildDetailRow('Brothers', '${biodata.brothersCount} ${biodata.brothersDetails.isNotEmpty ? '(${biodata.brothersDetails})' : ''}'.trim()),
-              _buildDetailRow('Sisters', '${biodata.sistersCount} ${biodata.sistersDetails.isNotEmpty ? '(${biodata.sistersDetails})' : ''}'.trim()),
-              _buildDetailRow('Family Culture', '${biodata.familyType} Family • ${biodata.familyValues} Values'),
-              _buildDetailRow('Mama (Uncle)', biodata.maternalUncleDetails),
+            items: [
+              MapEntry("Father's Name", '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
+              MapEntry("Mother's Name", '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
+              MapEntry('Brothers', biodata.displayBrothers),
+              MapEntry('Sisters', biodata.displaySisters),
+              MapEntry('Family Culture', '${biodata.familyType} Family • ${biodata.familyValues} Values'),
             ],
+            fullWidthItem: biodata.maternalUncleDetails.isNotEmpty ? MapEntry('Mama (Uncle)', biodata.maternalUncleDetails) : null,
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
           _buildCardSection(
             title: 'Contact Information',
             icon: Icons.contact_phone_outlined,
             primaryColor: lavenderPrimary,
-            children: [
-              _buildDetailRow('Contact Person', biodata.contactPerson),
-              _buildDetailRow('Primary Mobile', biodata.contactNumber),
-              _buildDetailRow('Alternate Contact', biodata.alternateNumber),
-              _buildDetailRow('Email ID', biodata.email),
-              _buildDetailRow('Current Address', biodata.residentialAddress),
-              _buildDetailRow('Native Place', biodata.nativePlace),
+            items: [
+              MapEntry('Contact Person', biodata.contactPerson),
+              MapEntry('Primary Mobile', biodata.displayPrimaryContact),
+              MapEntry('Alternate Contact', biodata.displayAlternateContact),
+              MapEntry('Email ID', biodata.email),
+              MapEntry('Native Place', biodata.nativePlace),
             ],
+            fullWidthItem: biodata.residentialAddress.isNotEmpty ? MapEntry('Current Address', biodata.residentialAddress) : null,
           ),
 
           if (biodata.expectations.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            _buildCardSection(
-              title: 'Partner Expectations',
-              icon: Icons.favorite_border,
-              primaryColor: lavenderPrimary,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: Text(
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFAF5FF),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFE9D5FF)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.favorite_border, size: 14, color: lavenderPrimary),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Partner Expectations',
+                        style: GoogleFonts.outfit(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.bold,
+                          color: lavenderPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(color: Color(0xFFDDD6FE), thickness: 0.8, height: 10),
+                  Text(
                     biodata.expectations,
                     style: GoogleFonts.outfit(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontStyle: FontStyle.italic,
                       color: const Color(0xFF374151),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ],
@@ -193,10 +252,13 @@ class PastelLavenderTemplate extends StatelessWidget {
     required String title,
     required IconData icon,
     required Color primaryColor,
-    required List<Widget> children,
+    required List<MapEntry<String, String>> items,
+    MapEntry<String, String>? fullWidthItem,
   }) {
-    final validChildren = children.where((w) => w is! SizedBox || (w.width != 0 && w.height != 0)).toList();
-    if (validChildren.isEmpty) return const SizedBox.shrink();
+    final valid = items.where((e) => e.value.trim().isNotEmpty).toList();
+    if (valid.isEmpty && (fullWidthItem == null || fullWidthItem.value.trim().isEmpty)) {
+      return const SizedBox.shrink();
+    }
 
     return Container(
       width: double.infinity,
@@ -205,7 +267,7 @@ class PastelLavenderTemplate extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFFE9D5FF)),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -216,50 +278,80 @@ class PastelLavenderTemplate extends StatelessWidget {
               Text(
                 title,
                 style: GoogleFonts.outfit(
-                  fontSize: 12,
+                  fontSize: 11.5,
                   fontWeight: FontWeight.bold,
                   color: primaryColor,
                 ),
               ),
             ],
           ),
-          const Divider(color: Color(0xFFDDD6FE), thickness: 0.8, height: 12),
-          ...children,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    if (value.trim().isEmpty) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 110,
-            child: Text(
-              label,
-              style: GoogleFonts.outfit(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF6B7280),
-              ),
-            ),
+          const Divider(color: Color(0xFFDDD6FE), thickness: 0.8, height: 8),
+          Wrap(
+            spacing: 12,
+            runSpacing: 3,
+            children: valid.map((e) {
+              return SizedBox(
+                width: 248,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 95,
+                      child: Text(
+                        e.key,
+                        style: GoogleFonts.outfit(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF6B7280),
+                        ),
+                      ),
+                    ),
+                    const Text(' :  ', style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                    Expanded(
+                      child: Text(
+                        e.value,
+                        style: GoogleFonts.outfit(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF1F2937),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
           ),
-          const Text(' :  ', style: TextStyle(fontSize: 11.5, color: Color(0xFF9CA3AF))),
-          Expanded(
-            child: Text(
-              value,
-              style: GoogleFonts.outfit(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xFF1F2937),
-              ),
+          if (fullWidthItem != null && fullWidthItem.value.trim().isNotEmpty) ...[
+            const SizedBox(height: 3),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 95,
+                  child: Text(
+                    fullWidthItem.key,
+                    style: GoogleFonts.outfit(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF6B7280),
+                    ),
+                  ),
+                ),
+                const Text(' :  ', style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                Expanded(
+                  child: Text(
+                    fullWidthItem.value,
+                    style: GoogleFonts.outfit(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF1F2937),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
+          ],
         ],
       ),
     );
