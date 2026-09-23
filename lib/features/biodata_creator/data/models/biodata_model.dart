@@ -22,9 +22,14 @@ class BiodataModel {
   final String caste;
   final String subCaste;
   final String gotra;
+  final String devak;
   final String rashi;
   final String nakshatra;
+  final String charan;
+  final String gan;
+  final String nadi;
   final String manglik;
+  final String kuldaivat;
   final String? profileImagePath;
 
   // Education & Career
@@ -86,9 +91,14 @@ class BiodataModel {
     this.caste = '',
     this.subCaste = '',
     this.gotra = '',
+    this.devak = '',
     this.rashi = '',
     this.nakshatra = '',
+    this.charan = '',
+    this.gan = '',
+    this.nadi = '',
     this.manglik = 'No',
+    this.kuldaivat = '',
     this.profileImagePath,
     this.highestEducation = '',
     this.educationDetails = '',
@@ -125,14 +135,48 @@ class BiodataModel {
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
+  bool get hasBrothers {
+    if (brothersCount.isEmpty && brothersDetails.isEmpty) return false;
+    final count = brothersCount.trim().toLowerCase();
+    final details = brothersDetails.trim().toLowerCase();
+    if ((count == '0' || count == 'none' || count == 'no' || count.isEmpty) &&
+        (details == 'none' || details == 'no' || details.isEmpty || details == '0')) {
+      return false;
+    }
+    return true;
+  }
+
+  bool get hasSisters {
+    if (sistersCount.isEmpty && sistersDetails.isEmpty) return false;
+    final count = sistersCount.trim().toLowerCase();
+    final details = sistersDetails.trim().toLowerCase();
+    if ((count == '0' || count == 'none' || count == 'no' || count.isEmpty) &&
+        (details == 'none' || details == 'no' || details.isEmpty || details == '0')) {
+      return false;
+    }
+    return true;
+  }
+
   String get displayBrothers {
-    if (brothersDetails.isNotEmpty) return brothersDetails;
-    if (brothersCount.isEmpty || brothersCount == '0' || brothersCount.toLowerCase() == 'none') {
-      return brothersCount.isNotEmpty ? brothersCount : 'None';
+    if (!hasBrothers) return '';
+    if (brothersDetails.isNotEmpty && brothersDetails.toLowerCase() != 'none') {
+      return brothersDetails;
     }
     final List<String> traits = [];
-    if (brotherRelation.isNotEmpty) traits.add(brotherRelation);
-    if (brotherMaritalStatus.isNotEmpty) traits.add(brotherMaritalStatus);
+    if (brotherRelation.isNotEmpty && brotherRelation != 'None') {
+      if (brotherRelation == 'Both' || brotherRelation == 'Both (Elder & Younger)') {
+        traits.add('Elder & Younger');
+      } else {
+        traits.add(brotherRelation);
+      }
+    }
+    if (brotherMaritalStatus.isNotEmpty && brotherMaritalStatus != 'None') {
+      if (brotherMaritalStatus == 'Both' || brotherMaritalStatus == 'Both (Married & Unmarried)') {
+        traits.add('Married & Unmarried');
+      } else {
+        traits.add(brotherMaritalStatus);
+      }
+    }
     
     final countStr = '$brothersCount Brother${brothersCount != '1' ? 's' : ''}';
     if (traits.isNotEmpty) {
@@ -142,13 +186,25 @@ class BiodataModel {
   }
 
   String get displaySisters {
-    if (sistersDetails.isNotEmpty) return sistersDetails;
-    if (sistersCount.isEmpty || sistersCount == '0' || sistersCount.toLowerCase() == 'none') {
-      return sistersCount.isNotEmpty ? sistersCount : 'None';
+    if (!hasSisters) return '';
+    if (sistersDetails.isNotEmpty && sistersDetails.toLowerCase() != 'none') {
+      return sistersDetails;
     }
     final List<String> traits = [];
-    if (sisterRelation.isNotEmpty) traits.add(sisterRelation);
-    if (sisterMaritalStatus.isNotEmpty) traits.add(sisterMaritalStatus);
+    if (sisterRelation.isNotEmpty && sisterRelation != 'None') {
+      if (sisterRelation == 'Both' || sisterRelation == 'Both (Elder & Younger)') {
+        traits.add('Elder & Younger');
+      } else {
+        traits.add(sisterRelation);
+      }
+    }
+    if (sisterMaritalStatus.isNotEmpty && sisterMaritalStatus != 'None') {
+      if (sisterMaritalStatus == 'Both' || sisterMaritalStatus == 'Both (Married & Unmarried)') {
+        traits.add('Married & Unmarried');
+      } else {
+        traits.add(sisterMaritalStatus);
+      }
+    }
     
     final countStr = '$sistersCount Sister${sistersCount != '1' ? 's' : ''}';
     if (traits.isNotEmpty) {
@@ -157,20 +213,118 @@ class BiodataModel {
     return countStr;
   }
 
+  bool get hasFamilyType {
+    if (familyType.isEmpty) return false;
+    final val = familyType.trim().toLowerCase();
+    return val != 'none' && val != 'not specified' && val != 'no';
+  }
+
+  String get displayFamilyType {
+    if (!hasFamilyType) return '';
+    return '$familyType Family';
+  }
+
+  bool get hasFamilyValues {
+    if (familyValues.isEmpty) return false;
+    final val = familyValues.trim().toLowerCase();
+    return val != 'none' && val != 'not specified' && val != 'no';
+  }
+
+  String get displayFamilyValues {
+    if (!hasFamilyValues) return '';
+    return '$familyValues Values';
+  }
+
+  String get primaryContactLabel {
+    final type = contactType.trim();
+    if (type.contains("Father")) return "Father's Mobile";
+    if (type.contains("Mother")) return "Mother's Mobile";
+    if (type.contains("Candidate") || type.contains("Self")) return "Candidate's Mobile";
+    if (type.contains("Brother")) return "Brother's Mobile";
+    if (type.contains("Guardian") || type.contains("Relative")) return "Guardian's Mobile";
+    if (type.contains("Family")) return "Family Contact";
+    if (type.isNotEmpty && type != 'None') return '$type Mobile';
+    return 'Contact Number';
+  }
+
+  String get alternateContactLabel {
+    final type = alternateContactType.trim();
+    if (type.contains("Father")) return "Father's Mobile";
+    if (type.contains("Mother")) return "Mother's Mobile";
+    if (type.contains("Candidate") || type.contains("Self")) return "Candidate's Mobile";
+    if (type.contains("Brother")) return "Brother's Mobile";
+    if (type.contains("Guardian") || type.contains("Relative")) return "Guardian's Mobile";
+    if (type.isNotEmpty && type != 'None' && type != 'None / Other') return '$type Mobile';
+    return 'Alternate Number';
+  }
+
+  String get primaryContactLabelHindi {
+    final type = contactType.trim();
+    if (type.contains("Father")) return "पिताजी का मोबाइल";
+    if (type.contains("Mother")) return "माताजी का मोबाइल";
+    if (type.contains("Candidate") || type.contains("Self")) return "प्रत्याशी का मोबाइल";
+    if (type.contains("Brother")) return "भाई का मोबाइल";
+    if (type.contains("Guardian") || type.contains("Relative")) return "अभिभावक का मोबाइल";
+    return 'मोबाइल नंबर';
+  }
+
+  String get alternateContactLabelHindi {
+    final type = alternateContactType.trim();
+    if (type.contains("Father")) return "पिताजी का मोबाइल";
+    if (type.contains("Mother")) return "माताजी का मोबाइल";
+    if (type.contains("Candidate") || type.contains("Self")) return "प्रत्याशी का मोबाइल";
+    if (type.contains("Brother")) return "भाई का मोबाइल";
+    if (type.contains("Guardian") || type.contains("Relative")) return "अभिभावक का मोबाइल";
+    return 'वैकल्पिक नंबर';
+  }
+
   String get displayPrimaryContact {
-    if (contactNumber.isEmpty) return '';
-    if (contactType.isNotEmpty && contactType != 'None') {
-      return '$contactNumber ($contactType)';
-    }
-    return contactNumber;
+    return contactNumber.trim();
   }
 
   String get displayAlternateContact {
-    if (alternateNumber.isEmpty) return '';
-    if (alternateContactType.isNotEmpty && alternateContactType != 'None') {
-      return '$alternateNumber ($alternateContactType)';
+    return alternateNumber.trim();
+  }
+
+  // Astrology Display Helpers
+  String get displayGotraDevak {
+    if (gotra.isNotEmpty && devak.isNotEmpty) return '$gotra / $devak';
+    if (gotra.isNotEmpty) return gotra;
+    if (devak.isNotEmpty) return devak;
+    return '';
+  }
+
+  String get displayRashiNakshatra {
+    final parts = <String>[];
+    if (rashi.isNotEmpty) parts.add(rashi);
+    if (nakshatra.isNotEmpty) {
+      if (charan.isNotEmpty) {
+        parts.add('$nakshatra (Charan $charan)');
+      } else {
+        parts.add(nakshatra);
+      }
+    } else if (charan.isNotEmpty) {
+      parts.add('Charan $charan');
     }
-    return alternateNumber;
+    return parts.join(' • ');
+  }
+
+  String get displayManglikNadi {
+    final parts = <String>[];
+    if (manglik.isNotEmpty && manglik.toLowerCase() != 'none') {
+      parts.add('Manglik: $manglik');
+    }
+    if (nadi.isNotEmpty) {
+      parts.add('Nadi: $nadi');
+    }
+    return parts.join(' • ');
+  }
+
+  String get displayGanKuldaivat {
+    final parts = <String>[];
+    if (gan.isNotEmpty) parts.add('Gan: $gan');
+    if (kuldaivat.isNotEmpty) parts.add('Kuldaivat: $kuldaivat');
+    return parts.join(' • ');
   }
 
   BiodataModel copyWith({
@@ -193,9 +347,14 @@ class BiodataModel {
     String? caste,
     String? subCaste,
     String? gotra,
+    String? devak,
     String? rashi,
     String? nakshatra,
+    String? charan,
+    String? gan,
+    String? nadi,
     String? manglik,
+    String? kuldaivat,
     String? profileImagePath,
     String? highestEducation,
     String? educationDetails,
@@ -250,9 +409,14 @@ class BiodataModel {
       caste: caste ?? this.caste,
       subCaste: subCaste ?? this.subCaste,
       gotra: gotra ?? this.gotra,
+      devak: devak ?? this.devak,
       rashi: rashi ?? this.rashi,
       nakshatra: nakshatra ?? this.nakshatra,
+      charan: charan ?? this.charan,
+      gan: gan ?? this.gan,
+      nadi: nadi ?? this.nadi,
       manglik: manglik ?? this.manglik,
+      kuldaivat: kuldaivat ?? this.kuldaivat,
       profileImagePath: profileImagePath ?? this.profileImagePath,
       highestEducation: highestEducation ?? this.highestEducation,
       educationDetails: educationDetails ?? this.educationDetails,
@@ -310,9 +474,14 @@ class BiodataModel {
       'caste': caste,
       'subCaste': subCaste,
       'gotra': gotra,
+      'devak': devak,
       'rashi': rashi,
       'nakshatra': nakshatra,
+      'charan': charan,
+      'gan': gan,
+      'nadi': nadi,
       'manglik': manglik,
+      'kuldaivat': kuldaivat,
       'profileImagePath': profileImagePath,
       'highestEducation': highestEducation,
       'educationDetails': educationDetails,
@@ -370,9 +539,14 @@ class BiodataModel {
       caste: map['caste'] ?? '',
       subCaste: map['subCaste'] ?? '',
       gotra: map['gotra'] ?? '',
+      devak: map['devak'] ?? '',
       rashi: map['rashi'] ?? '',
       nakshatra: map['nakshatra'] ?? '',
+      charan: map['charan'] ?? '',
+      gan: map['gan'] ?? '',
+      nadi: map['nadi'] ?? '',
       manglik: map['manglik'] ?? 'No',
+      kuldaivat: map['kuldaivat'] ?? '',
       profileImagePath: map['profileImagePath'],
       highestEducation: map['highestEducation'] ?? '',
       educationDetails: map['educationDetails'] ?? '',
@@ -436,9 +610,14 @@ class BiodataModel {
       caste: 'Brahmin',
       subCaste: 'Deshastha',
       gotra: 'Kashyap',
+      devak: 'Panchpalvi',
       rashi: 'Simha (Leo)',
       nakshatra: 'Magha',
+      charan: '1',
+      gan: 'Rakshas',
+      nadi: 'Antya',
       manglik: 'No',
+      kuldaivat: 'Khandoba',
       highestEducation: 'B.Tech in Computer Science & MS',
       educationDetails: 'IIT Bombay (B.Tech), Georgia Tech (MS)',
       occupation: 'Senior Software Engineer',

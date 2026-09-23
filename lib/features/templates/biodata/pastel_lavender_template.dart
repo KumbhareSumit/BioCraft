@@ -150,8 +150,11 @@ class PastelLavenderTemplate extends StatelessWidget {
               MapEntry('Marital Status', biodata.maritalStatus),
               MapEntry('Mother Tongue', biodata.motherTongue),
               MapEntry('Religion & Caste', '${biodata.religion}${biodata.caste.isNotEmpty ? ' - ${biodata.caste}' : ''}${biodata.subCaste.isNotEmpty ? ' (${biodata.subCaste})' : ''}'.trim()),
-              MapEntry('Gotra & Rashi', '${biodata.gotra}${biodata.rashi.isNotEmpty ? ' / ${biodata.rashi}' : ''}'.trim()),
-              MapEntry('Nakshatra / Manglik', '${biodata.nakshatra}${biodata.nakshatra.isNotEmpty && biodata.manglik.isNotEmpty ? ' • ' : ''}${biodata.manglik.isNotEmpty ? 'Manglik: ${biodata.manglik}' : ''}'.trim()),
+              MapEntry('Gotra / Devak', biodata.displayGotraDevak),
+              MapEntry('Rashi / Nakshatra', biodata.displayRashiNakshatra),
+              MapEntry('Manglik / Nadi', biodata.displayManglikNadi),
+              if (biodata.displayGanKuldaivat.isNotEmpty)
+                MapEntry('Gan / Kuldaivat', biodata.displayGanKuldaivat),
             ],
           ),
 
@@ -180,9 +183,10 @@ class PastelLavenderTemplate extends StatelessWidget {
             items: [
               MapEntry("Father's Name", '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
               MapEntry("Mother's Name", '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
-              MapEntry('Brothers', biodata.displayBrothers),
-              MapEntry('Sisters', biodata.displaySisters),
-              MapEntry('Family Culture', '${biodata.familyType} Family • ${biodata.familyValues} Values'),
+              if (biodata.hasBrothers) MapEntry('Brothers', biodata.displayBrothers),
+              if (biodata.hasSisters) MapEntry('Sisters', biodata.displaySisters),
+              if (biodata.hasFamilyType) MapEntry('Family Type', biodata.displayFamilyType),
+              if (biodata.hasFamilyValues) MapEntry('Family Values', biodata.displayFamilyValues),
             ],
             fullWidthItem: biodata.maternalUncleDetails.isNotEmpty ? MapEntry('Mama (Uncle)', biodata.maternalUncleDetails) : null,
           ),
@@ -195,8 +199,8 @@ class PastelLavenderTemplate extends StatelessWidget {
             primaryColor: lavenderPrimary,
             items: [
               MapEntry('Contact Person', biodata.contactPerson),
-              MapEntry('Primary Mobile', biodata.displayPrimaryContact),
-              MapEntry('Alternate Contact', biodata.displayAlternateContact),
+              MapEntry(biodata.primaryContactLabel, biodata.displayPrimaryContact),
+              MapEntry(biodata.alternateContactLabel, biodata.displayAlternateContact),
               MapEntry('Email ID', biodata.email),
               MapEntry('Native Place', biodata.nativePlace),
             ],

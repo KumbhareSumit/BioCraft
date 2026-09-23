@@ -109,8 +109,11 @@ class VintageTraditionalTemplate extends StatelessWidget {
             MapEntry('जन्म समय व स्थान', '${biodata.timeOfBirth} ${biodata.placeOfBirth}'.trim()),
             MapEntry('ऊंचाई व वर्ण', '${biodata.height}${biodata.height.isNotEmpty && biodata.complexion.isNotEmpty ? ' • ' : ''}${biodata.complexion}'.trim()),
             MapEntry('जाति व उपजाति', '${biodata.caste}${biodata.subCaste.isNotEmpty ? ' (${biodata.subCaste})' : ''}'.trim()),
-            MapEntry('गोत्र व राशि', '${biodata.gotra}${biodata.rashi.isNotEmpty ? ' / ${biodata.rashi}' : ''}'.trim()),
-            MapEntry('मांगलिक', biodata.manglik),
+            MapEntry('गोत्र / देवक', biodata.displayGotraDevak),
+            MapEntry('राशि / नक्षत्र', biodata.displayRashiNakshatra),
+            MapEntry('मांगलिक / नाडी', biodata.displayManglikNadi),
+            if (biodata.displayGanKuldaivat.isNotEmpty)
+              MapEntry('गण / कुलदैवत', biodata.displayGanKuldaivat),
           ], vintageGold, primaryColor),
 
           const SizedBox(height: 8),
@@ -128,8 +131,10 @@ class VintageTraditionalTemplate extends StatelessWidget {
           _buildSection('पारिवारिक विवरण (Family Details)', [
             MapEntry('पिताजी का नाम', '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
             MapEntry('माताजी का नाम', '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
-            MapEntry('भाई', biodata.displayBrothers),
-            MapEntry('बहन', biodata.displaySisters),
+            if (biodata.hasBrothers) MapEntry('भाई', biodata.displayBrothers),
+            if (biodata.hasSisters) MapEntry('बहन', biodata.displaySisters),
+            if (biodata.hasFamilyType) MapEntry('परिवार का प्रकार', biodata.displayFamilyType),
+            if (biodata.hasFamilyValues) MapEntry('पारिवारिक संस्कार', biodata.displayFamilyValues),
             MapEntry('मामा / ननिहाल', biodata.maternalUncleDetails),
           ], vintageGold, primaryColor),
 
@@ -137,8 +142,8 @@ class VintageTraditionalTemplate extends StatelessWidget {
 
           _buildSection('सम्पर्क सूत्र (Contact)', [
             MapEntry('सम्पर्क व्यक्ति', biodata.contactPerson),
-            MapEntry('मोबाइल नंबर', biodata.displayPrimaryContact),
-            MapEntry('वैकल्पिक नंबर', biodata.displayAlternateContact),
+            MapEntry(biodata.primaryContactLabelHindi, biodata.displayPrimaryContact),
+            MapEntry(biodata.alternateContactLabelHindi, biodata.displayAlternateContact),
             MapEntry('मूल निवास', biodata.nativePlace),
           ], vintageGold, primaryColor, fullWidthItem: biodata.residentialAddress.isNotEmpty ? MapEntry('वर्तमान पता', biodata.residentialAddress) : null),
         ],

@@ -131,8 +131,11 @@ class PdfGenerator {
                 _cell('Marital Status', biodata.maritalStatus),
                 _cell('Mother Tongue', biodata.motherTongue),
                 _cell('Religion / Caste', '${biodata.religion}${biodata.caste.isNotEmpty ? ' - ${biodata.caste}' : ''}'.trim()),
-                _cell('Gotra / Rashi', '${biodata.gotra}${biodata.rashi.isNotEmpty ? ' / ${biodata.rashi}' : ''}'.trim()),
-                _cell('Manglik Status', biodata.manglik),
+                _cell('Gotra / Devak', biodata.displayGotraDevak),
+                _cell('Rashi / Nakshatra', biodata.displayRashiNakshatra),
+                _cell('Manglik / Nadi', biodata.displayManglikNadi),
+                if (biodata.displayGanKuldaivat.isNotEmpty)
+                  _cell('Gan / Kuldaivat', biodata.displayGanKuldaivat),
               ]),
 
               pw.SizedBox(height: 8),
@@ -151,9 +154,10 @@ class PdfGenerator {
               _buildTwoColGrid([
                 _cell("Father's Name", '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
                 _cell("Mother's Name", '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
-                _cell('Brothers', biodata.brothersDetails.isNotEmpty ? biodata.brothersDetails : biodata.brothersCount),
-                _cell('Sisters', biodata.sistersDetails.isNotEmpty ? biodata.sistersDetails : biodata.sistersCount),
-                _cell('Family Type & Values', '${biodata.familyType} Family, ${biodata.familyValues} Values'),
+                if (biodata.hasBrothers) _cell('Brothers', biodata.displayBrothers),
+                if (biodata.hasSisters) _cell('Sisters', biodata.displaySisters),
+                if (biodata.hasFamilyType) _cell('Family Type', biodata.displayFamilyType),
+                if (biodata.hasFamilyValues) _cell('Family Values', biodata.displayFamilyValues),
                 if (biodata.maternalUncleDetails.isNotEmpty)
                   _cell('Mama / Uncle', biodata.maternalUncleDetails),
               ]),
@@ -162,8 +166,8 @@ class PdfGenerator {
               _buildRoyalSectionHeader('CONTACT & RESIDENCE', primaryColor, goldColor),
               _buildTwoColGrid([
                 _cell('Contact Person', biodata.contactPerson),
-                _cell('Phone Number', biodata.contactNumber),
-                _cell('Alternate Phone', biodata.alternateNumber),
+                _cell(biodata.primaryContactLabel, biodata.displayPrimaryContact),
+                _cell(biodata.alternateContactLabel, biodata.displayAlternateContact),
                 _cell('Email Address', biodata.email),
                 _cell('Address', biodata.residentialAddress),
                 _cell('Native Place', biodata.nativePlace),
@@ -275,7 +279,11 @@ class PdfGenerator {
                 _cell('Marital Status', biodata.maritalStatus),
                 _cell('Mother Tongue', biodata.motherTongue),
                 _cell('Religion / Caste', '${biodata.religion} - ${biodata.caste}'.trim()),
-                _cell('Gotra / Rashi', '${biodata.gotra} / ${biodata.rashi}'.trim()),
+                _cell('Gotra / Devak', biodata.displayGotraDevak),
+                _cell('Rashi / Nakshatra', biodata.displayRashiNakshatra),
+                _cell('Manglik / Nadi', biodata.displayManglikNadi),
+                if (biodata.displayGanKuldaivat.isNotEmpty)
+                  _cell('Gan / Kuldaivat', biodata.displayGanKuldaivat),
               ], primaryColor, softTint),
 
               _buildFloralSection('Education & Career', [
@@ -288,16 +296,18 @@ class PdfGenerator {
               ], primaryColor, softTint),
 
               _buildFloralSection('Family Background', [
-                _cell("Father's Details", '${biodata.fatherName} (${biodata.fatherOccupation})'.trim()),
-                _cell("Mother's Details", '${biodata.motherName} (${biodata.motherOccupation})'.trim()),
-                _cell('Brothers', biodata.brothersDetails.isNotEmpty ? biodata.brothersDetails : biodata.brothersCount),
-                _cell('Sisters', biodata.sistersDetails.isNotEmpty ? biodata.sistersDetails : biodata.sistersCount),
-                _cell('Family Values', '${biodata.familyType} Family, ${biodata.familyValues} Values'),
+                _cell("Father's Details", '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
+                _cell("Mother's Details", '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
+                if (biodata.hasBrothers) _cell('Brothers', biodata.displayBrothers),
+                if (biodata.hasSisters) _cell('Sisters', biodata.displaySisters),
+                if (biodata.hasFamilyType) _cell('Family Type', biodata.displayFamilyType),
+                if (biodata.hasFamilyValues) _cell('Family Values', biodata.displayFamilyValues),
               ], primaryColor, softTint),
 
               _buildFloralSection('Contact Information', [
                 _cell('Contact Person', biodata.contactPerson),
-                _cell('Phone Number', '${biodata.contactNumber} ${biodata.alternateNumber}'.trim()),
+                _cell(biodata.primaryContactLabel, biodata.displayPrimaryContact),
+                _cell(biodata.alternateContactLabel, biodata.displayAlternateContact),
                 _cell('Email Address', biodata.email),
                 _cell('Residence', biodata.residentialAddress),
               ], primaryColor, softTint),
@@ -397,8 +407,11 @@ class PdfGenerator {
                 _cell('Blood Group', biodata.bloodGroup),
                 _cell('Marital Status', biodata.maritalStatus),
                 _cell('Religion / Caste', '${biodata.religion} - ${biodata.caste}'.trim()),
-                _cell('Gotra / Rashi', '${biodata.gotra} / ${biodata.rashi}'.trim()),
-                _cell('Manglik', biodata.manglik),
+                _cell('Gotra / Devak', biodata.displayGotraDevak),
+                _cell('Rashi / Nakshatra', biodata.displayRashiNakshatra),
+                _cell('Manglik / Nadi', biodata.displayManglikNadi),
+                if (biodata.displayGanKuldaivat.isNotEmpty)
+                  _cell('Gan / Kuldaivat', biodata.displayGanKuldaivat),
               ]),
 
               pw.SizedBox(height: 8),
@@ -413,16 +426,19 @@ class PdfGenerator {
 
               pw.SizedBox(height: 8),
               _buildModernSection('Family Information', primaryColor, [
-                _cell('Father', '${biodata.fatherName} (${biodata.fatherOccupation})'.trim()),
-                _cell('Mother', '${biodata.motherName} (${biodata.motherOccupation})'.trim()),
-                _cell('Siblings', 'Brothers: ${biodata.brothersCount}, Sisters: ${biodata.sistersCount}'),
-                _cell('Family Setup', '${biodata.familyType}, ${biodata.familyValues}'),
+                _cell('Father', '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
+                _cell('Mother', '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
+                if (biodata.hasBrothers) _cell('Brothers', biodata.displayBrothers),
+                if (biodata.hasSisters) _cell('Sisters', biodata.displaySisters),
+                if (biodata.hasFamilyType) _cell('Family Type', biodata.displayFamilyType),
+                if (biodata.hasFamilyValues) _cell('Family Values', biodata.displayFamilyValues),
               ]),
 
               pw.SizedBox(height: 8),
               _buildModernSection('Contact Details', primaryColor, [
                 _cell('Contact Person', biodata.contactPerson),
-                _cell('Phone', '${biodata.contactNumber} ${biodata.alternateNumber}'.trim()),
+                _cell(biodata.primaryContactLabel, biodata.displayPrimaryContact),
+                _cell(biodata.alternateContactLabel, biodata.displayAlternateContact),
                 _cell('Email', biodata.email),
                 _cell('Address', biodata.residentialAddress),
               ]),
@@ -494,8 +510,11 @@ class PdfGenerator {
                 _cell('Height & Complexion', '${biodata.height} | ${biodata.complexion}'.trim()),
                 _cell('Blood Group', biodata.bloodGroup),
                 _cell('Religion / Caste', '${biodata.religion} - ${biodata.caste} (${biodata.subCaste})'.trim()),
-                _cell('Gotra / Rashi', '${biodata.gotra} / ${biodata.rashi}'.trim()),
-                _cell('Nakshatra / Manglik', '${biodata.nakshatra} | Manglik: ${biodata.manglik}'.trim()),
+                _cell('Gotra / Devak', biodata.displayGotraDevak),
+                _cell('Rashi / Nakshatra', biodata.displayRashiNakshatra),
+                _cell('Manglik / Nadi', biodata.displayManglikNadi),
+                if (biodata.displayGanKuldaivat.isNotEmpty)
+                  _cell('Gan / Kuldaivat', biodata.displayGanKuldaivat),
               ]),
 
               pw.SizedBox(height: 6),
@@ -510,16 +529,19 @@ class PdfGenerator {
 
               pw.SizedBox(height: 6),
               _buildTraditionalBox('FAMILY DETAILS', borderColor, [
-                _cell("Father's Name", '${biodata.fatherName} (${biodata.fatherOccupation})'.trim()),
-                _cell("Mother's Name", '${biodata.motherName} (${biodata.motherOccupation})'.trim()),
-                _cell('Siblings', 'Brothers: ${biodata.brothersCount}, Sisters: ${biodata.sistersCount}'),
-                _cell('Family Setup', '${biodata.familyType} Family, ${biodata.familyValues} Values'),
+                _cell("Father's Name", '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
+                _cell("Mother's Name", '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
+                if (biodata.hasBrothers) _cell('Brothers', biodata.displayBrothers),
+                if (biodata.hasSisters) _cell('Sisters', biodata.displaySisters),
+                if (biodata.hasFamilyType) _cell('Family Type', biodata.displayFamilyType),
+                if (biodata.hasFamilyValues) _cell('Family Values', biodata.displayFamilyValues),
               ]),
 
               pw.SizedBox(height: 6),
               _buildTraditionalBox('CONTACT & ADDRESS', borderColor, [
                 _cell('Contact Person', biodata.contactPerson),
-                _cell('Phone Numbers', '${biodata.contactNumber} / ${biodata.alternateNumber}'.trim()),
+                _cell(biodata.primaryContactLabel, biodata.displayPrimaryContact),
+                _cell(biodata.alternateContactLabel, biodata.displayAlternateContact),
                 _cell('Email', biodata.email),
                 _cell('Address', biodata.residentialAddress),
                 _cell('Native Place', biodata.nativePlace),

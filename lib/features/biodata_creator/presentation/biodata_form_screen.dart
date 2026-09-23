@@ -38,8 +38,13 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
   late TextEditingController _casteController;
   late TextEditingController _subCasteController;
   late TextEditingController _gotraController;
+  late TextEditingController _devakController;
   late TextEditingController _rashiController;
   late TextEditingController _nakshatraController;
+  late TextEditingController _charanController;
+  late TextEditingController _ganController;
+  late TextEditingController _nadiController;
+  late TextEditingController _kuldaivatController;
 
   late TextEditingController _educationController;
   late TextEditingController _eduDetailsController;
@@ -112,8 +117,13 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
     _casteController = TextEditingController();
     _subCasteController = TextEditingController();
     _gotraController = TextEditingController();
+    _devakController = TextEditingController();
     _rashiController = TextEditingController();
     _nakshatraController = TextEditingController();
+    _charanController = TextEditingController();
+    _ganController = TextEditingController();
+    _nadiController = TextEditingController();
+    _kuldaivatController = TextEditingController();
 
     _educationController = TextEditingController();
     _eduDetailsController = TextEditingController();
@@ -157,8 +167,13 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
     _casteController.text = bio.caste;
     _subCasteController.text = bio.subCaste;
     _gotraController.text = bio.gotra;
+    _devakController.text = bio.devak;
     _rashiController.text = bio.rashi;
     _nakshatraController.text = bio.nakshatra;
+    _charanController.text = bio.charan;
+    _ganController.text = bio.gan;
+    _nadiController.text = bio.nadi;
+    _kuldaivatController.text = bio.kuldaivat;
 
     _educationController.text = bio.highestEducation;
     _eduDetailsController.text = bio.educationDetails;
@@ -216,8 +231,13 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
     _casteController.dispose();
     _subCasteController.dispose();
     _gotraController.dispose();
+    _devakController.dispose();
     _rashiController.dispose();
     _nakshatraController.dispose();
+    _charanController.dispose();
+    _ganController.dispose();
+    _nadiController.dispose();
+    _kuldaivatController.dispose();
     _educationController.dispose();
     _eduDetailsController.dispose();
     _occupationController.dispose();
@@ -263,9 +283,14 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
         caste: _casteController.text.trim(),
         subCaste: _subCasteController.text.trim(),
         gotra: _gotraController.text.trim(),
+        devak: _devakController.text.trim(),
         rashi: _rashiController.text.trim(),
         nakshatra: _nakshatraController.text.trim(),
+        charan: _charanController.text.trim(),
+        gan: _ganController.text.trim(),
+        nadi: _nadiController.text.trim(),
         manglik: _selectedManglik,
+        kuldaivat: _kuldaivatController.text.trim(),
         profileImagePath: _profileImagePath,
         highestEducation: _educationController.text.trim(),
         educationDetails: _eduDetailsController.text.trim(),
@@ -336,71 +361,7 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
     _syncToProvider();
   }
 
-  void _fillSampleData() {
-    setState(() {
-      _nameController.text = 'Aarav Devendra Sharma';
-      _selectedGender = 'Male';
-      _dobController.text = '15 May 1996';
-      _tobController.text = '08:45 AM';
-      _pobController.text = 'Pune, Maharashtra';
-      _heightController.text = "5' 11\"";
-      _complexionController.text = 'Fair';
-      _bloodGroupController.text = 'O+';
-      _selectedMaritalStatus = 'Never Married';
-      _motherTongueController.text = 'Hindi / Marathi';
-      _religionHeadingController.text = '॥ श्री गणेशाय नमः ॥';
-      _religionController.text = 'Hindu';
-      _casteController.text = 'Brahmin';
-      _subCasteController.text = 'Gour';
-      _gotraController.text = 'Kaushik';
-      _rashiController.text = 'Taurus (Vrishabha)';
-      _nakshatraController.text = 'Rohini';
-      _selectedManglik = 'No';
 
-      _educationController.text = 'B.Tech in Computer Science';
-      _eduDetailsController.text = 'IIT Bombay (Batch of 2018)';
-      _occupationController.text = 'Senior Software Engineer';
-      _companyController.text = 'Microsoft';
-      _incomeController.text = '₹ 38 LPA';
-      _locationController.text = 'Bengaluru, India';
-
-      _fatherNameController.text = 'Devendra Sharma';
-      _fatherOccController.text = 'Senior Manager (Retd. SBI)';
-      _motherNameController.text = 'Sunita Sharma';
-      _motherOccController.text = 'Homemaker';
-      _brothersCountController.text = '1';
-      _selectedBrotherRelation = 'Younger';
-      _selectedBrotherMaritalStatus = 'Unmarried';
-      _brothersDetailsController.text = 'Studying MBA';
-      _sistersCountController.text = '0';
-      _selectedSisterRelation = 'None';
-      _selectedSisterMaritalStatus = 'None';
-      _sistersDetailsController.text = 'None';
-      _selectedFamilyType = 'Nuclear';
-      _selectedFamilyValues = 'Moderate';
-      _maternalUncleController.text = 'Dr. Rajesh Pandey (Nagpur)';
-
-      _contactPersonController.text = 'Devendra Sharma (Father)';
-      _selectedContactType = "Father's Number";
-      _contactNumController.text = '+91 98765 43210';
-      _selectedAltContactType = "Candidate's Number (Self)";
-      _altNumController.text = '+91 98231 23456';
-      _emailController.text = 'aarav.sharma@example.com';
-      _addressController.text = 'A-402, Royal Palms Society, Baner, Pune - 411045';
-      _nativePlaceController.text = 'Indore, Madhya Pradesh';
-      _expectationsController.text =
-          'Looking for a well-educated, cultured, and family-oriented partner with good communication and mutual respect.';
-    });
-    _syncToProvider();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Sample data filled successfully! Tap Preview to view design.'),
-        backgroundColor: AppColors.secondaryDark,
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
@@ -464,18 +425,6 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
           style: GoogleFonts.cinzel(fontWeight: FontWeight.bold),
         ),
         actions: [
-          TextButton.icon(
-            onPressed: _fillSampleData,
-            icon: const Icon(Icons.auto_awesome, color: AppColors.secondaryDark, size: 18),
-            label: Text(
-              'Auto Fill',
-              style: GoogleFonts.outfit(
-                fontWeight: FontWeight.w600,
-                color: AppColors.secondaryDark,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
           IconButton(
             tooltip: 'Live Preview Studio',
             icon: const Icon(Icons.visibility, color: AppColors.primary),
@@ -862,7 +811,7 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
               child: CustomTextField(
                 controller: _casteController,
                 label: 'Caste',
-                hint: 'e.g. Brahmin, Maratha',
+                hint: 'e.g. Brahmin, Maratha, Helba Khoste',
               ),
             ),
           ],
@@ -882,7 +831,27 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
               child: CustomTextField(
                 controller: _gotraController,
                 label: 'Gotra',
-                hint: 'e.g. Kaushik, Kashyap',
+                hint: 'e.g. Bhardwaj, Kaushik, Kashyap',
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Expanded(
+              child: CustomTextField(
+                controller: _devakController,
+                label: 'Devak',
+                hint: 'e.g. Panchpalvi, Vasundhara, Rui',
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: CustomTextField(
+                controller: _kuldaivatController,
+                label: 'Kuldaivat / Kuldevi',
+                hint: 'e.g. Khandoba, Bhavani Mata',
               ),
             ),
           ],
@@ -894,7 +863,7 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
               child: CustomTextField(
                 controller: _rashiController,
                 label: 'Rashi (Zodiac)',
-                hint: 'e.g. Vrishabha (Taurus)',
+                hint: 'e.g. Kumbh (Aquarius), Vrishabha',
               ),
             ),
             const SizedBox(width: 14),
@@ -902,17 +871,51 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
               child: CustomTextField(
                 controller: _nakshatraController,
                 label: 'Nakshatra',
-                hint: 'e.g. Rohini, Ashwini',
+                hint: 'e.g. Shatabhisha, Rohini, Ashwini',
               ),
             ),
           ],
         ),
         const SizedBox(height: 14),
-        _buildDropdown(
-          label: 'Manglik Status',
-          value: _selectedManglik,
-          items: ['No', 'Yes', 'Anshik (Partial)', 'Don\'t Know'],
-          onChanged: (val) => setState(() => _selectedManglik = val!),
+        Row(
+          children: [
+            Expanded(
+              child: CustomTextField(
+                controller: _charanController,
+                label: 'Charan',
+                hint: 'e.g. 1, 2, 3, 4',
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: CustomTextField(
+                controller: _ganController,
+                label: 'Gan',
+                hint: 'e.g. Dev, Manushya, Rakshas',
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Expanded(
+              child: CustomTextField(
+                controller: _nadiController,
+                label: 'Nadi',
+                hint: 'e.g. Adya, Madhya, Antya',
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: _buildDropdown(
+                label: 'Manglik Status',
+                value: _selectedManglik,
+                items: ['No', 'Yes', 'Anshik (Partial)', 'Don\'t Know'],
+                onChanged: (val) => setState(() => _selectedManglik = val!),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -1035,18 +1038,18 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
                 children: [
                   Expanded(
                     child: _buildDropdown(
-                      label: 'Brother Relation',
+                      label: 'Relation',
                       value: _selectedBrotherRelation,
-                      items: ['Younger', 'Elder', 'Both (Elder & Younger)', 'None'],
+                      items: ['Younger', 'Elder', 'Both', 'None'],
                       onChanged: (val) => setState(() => _selectedBrotherRelation = val!),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: _buildDropdown(
                       label: 'Marital Status',
                       value: _selectedBrotherMaritalStatus,
-                      items: ['Unmarried', 'Married', 'Both (Married & Unmarried)', 'None'],
+                      items: ['Unmarried', 'Married', 'Both', 'None'],
                       onChanged: (val) => setState(() => _selectedBrotherMaritalStatus = val!),
                     ),
                   ),
@@ -1087,18 +1090,18 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
                 children: [
                   Expanded(
                     child: _buildDropdown(
-                      label: 'Sister Relation',
+                      label: 'Relation',
                       value: _selectedSisterRelation,
-                      items: ['Younger', 'Elder', 'Both (Elder & Younger)', 'None'],
+                      items: ['Younger', 'Elder', 'Both', 'None'],
                       onChanged: (val) => setState(() => _selectedSisterRelation = val!),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: _buildDropdown(
                       label: 'Marital Status',
                       value: _selectedSisterMaritalStatus,
-                      items: ['Unmarried', 'Married', 'Both (Married & Unmarried)', 'None'],
+                      items: ['Unmarried', 'Married', 'Both', 'None'],
                       onChanged: (val) => setState(() => _selectedSisterMaritalStatus = val!),
                     ),
                   ),
@@ -1133,7 +1136,7 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
               child: _buildDropdown(
                 label: 'Family Values',
                 value: _selectedFamilyValues,
-                items: ['Traditional', 'Moderate', 'Liberal'],
+                items: ['None', 'Moderate', 'Traditional', 'Liberal'],
                 onChanged: (val) => setState(() => _selectedFamilyValues = val!),
               ),
             ),
@@ -1290,17 +1293,24 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
+    final effectiveValue = items.contains(value) ? value : items.first;
     return DropdownButtonFormField<String>(
-      initialValue: items.contains(value) ? value : items.first,
+      initialValue: effectiveValue,
+      isExpanded: true,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(fontSize: 13),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        labelStyle: const TextStyle(fontSize: 12),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       ),
       items: items.map((item) {
         return DropdownMenuItem<String>(
           value: item,
-          child: Text(item, style: const TextStyle(fontSize: 14)),
+          child: Text(
+            item,
+            style: const TextStyle(fontSize: 13),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
         );
       }).toList(),
       onChanged: onChanged,

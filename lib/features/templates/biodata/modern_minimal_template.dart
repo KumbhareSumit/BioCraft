@@ -91,9 +91,12 @@ class ModernMinimalTemplate extends StatelessWidget {
             _item('Height', biodata.height),
             _item('Complexion', biodata.complexion),
             _item('Marital Status', biodata.maritalStatus),
-            _item('Caste', biodata.caste),
-            _item('Gotra', biodata.gotra),
-            _item('Manglik', biodata.manglik),
+            _item('Caste', '${biodata.religion}${biodata.caste.isNotEmpty ? ' - ${biodata.caste}' : ''}'.trim()),
+            _item('Gotra / Devak', biodata.displayGotraDevak),
+            _item('Rashi / Nakshatra', biodata.displayRashiNakshatra),
+            _item('Manglik / Nadi', biodata.displayManglikNadi),
+            if (biodata.displayGanKuldaivat.isNotEmpty)
+              _item('Gan / Kuldaivat', biodata.displayGanKuldaivat),
           ], primaryColor),
 
           const SizedBox(height: 12),
@@ -113,16 +116,18 @@ class ModernMinimalTemplate extends StatelessWidget {
             _item('Father Occupation', biodata.fatherOccupation),
             _item('Mother\'s Name', biodata.motherName),
             _item('Mother Occupation', biodata.motherOccupation),
-            _item('Brothers', biodata.displayBrothers),
-            _item('Sisters', biodata.displaySisters),
+            if (biodata.hasBrothers) _item('Brothers', biodata.displayBrothers),
+            if (biodata.hasSisters) _item('Sisters', biodata.displaySisters),
+            if (biodata.hasFamilyType) _item('Family Type', biodata.displayFamilyType),
+            if (biodata.hasFamilyValues) _item('Family Values', biodata.displayFamilyValues),
           ], primaryColor),
 
           const SizedBox(height: 12),
 
           _buildGridSection('Contact Info', [
             _item('Contact Person', biodata.contactPerson),
-            _item('Mobile', biodata.displayPrimaryContact),
-            _item('Alt Mobile', biodata.displayAlternateContact),
+            _item(biodata.primaryContactLabel, biodata.displayPrimaryContact),
+            _item(biodata.alternateContactLabel, biodata.displayAlternateContact),
             _item('Email', biodata.email),
             _item('Address', biodata.residentialAddress),
           ], primaryColor),

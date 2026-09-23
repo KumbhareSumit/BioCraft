@@ -146,9 +146,11 @@ class RubyDivineTemplate extends StatelessWidget {
               MapEntry('Marital Status', biodata.maritalStatus),
               MapEntry('Mother Tongue', biodata.motherTongue),
               MapEntry('Religion / Caste', '${biodata.religion}${biodata.caste.isNotEmpty ? ' - ${biodata.caste}' : ''}${biodata.subCaste.isNotEmpty ? ' (${biodata.subCaste})' : ''}'.trim()),
-              MapEntry('Gotra / Devak', biodata.gotra),
-              MapEntry('Rashi / Nakshatra', '${biodata.rashi}${biodata.rashi.isNotEmpty && biodata.nakshatra.isNotEmpty ? ' • ' : ''}${biodata.nakshatra}'.trim()),
-              MapEntry('Manglik / Nadi', biodata.manglik.isNotEmpty ? 'Manglik: ${biodata.manglik}' : ''),
+              MapEntry('Gotra / Devak', biodata.displayGotraDevak),
+              MapEntry('Rashi / Nakshatra', biodata.displayRashiNakshatra),
+              MapEntry('Manglik / Nadi', biodata.displayManglikNadi),
+              if (biodata.displayGanKuldaivat.isNotEmpty)
+                MapEntry('Gan / Kuldaivat', biodata.displayGanKuldaivat),
             ]),
 
             const SizedBox(height: 8),
@@ -171,9 +173,10 @@ class RubyDivineTemplate extends StatelessWidget {
             _buildGrid([
               MapEntry("Father's Name", '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
               MapEntry("Mother's Name", '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
-              MapEntry('Brothers', biodata.displayBrothers),
-              MapEntry('Sisters', biodata.displaySisters),
-              MapEntry('Family Setup', '${biodata.familyType} Family, ${biodata.familyValues} Values'),
+              if (biodata.hasBrothers) MapEntry('Brothers', biodata.displayBrothers),
+              if (biodata.hasSisters) MapEntry('Sisters', biodata.displaySisters),
+              if (biodata.hasFamilyType) MapEntry('Family Type', biodata.displayFamilyType),
+              if (biodata.hasFamilyValues) MapEntry('Family Values', biodata.displayFamilyValues),
             ]),
             if (biodata.maternalUncleDetails.isNotEmpty)
               _buildFullWidthRow('Maternal Uncle (Mama)', biodata.maternalUncleDetails),
@@ -184,8 +187,8 @@ class RubyDivineTemplate extends StatelessWidget {
             _buildSectionBanner('CONTACT & RESIDENCE', rubyPrimary, goldAccent),
             _buildGrid([
               MapEntry('Contact Person', biodata.contactPerson),
-              MapEntry('Mobile Number', biodata.displayPrimaryContact),
-              MapEntry('Alternate Number', biodata.displayAlternateContact),
+              MapEntry(biodata.primaryContactLabel, biodata.displayPrimaryContact),
+              MapEntry(biodata.alternateContactLabel, biodata.displayAlternateContact),
               MapEntry('Email ID', biodata.email),
               MapEntry('Native Place', biodata.nativePlace),
             ]),
