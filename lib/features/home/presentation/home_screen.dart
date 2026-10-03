@@ -307,6 +307,61 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 8),
         ],
       ),
+      floatingActionButton: _buildFloatingActionButton(context, bioProvider, invProvider, resProvider),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: NavigationBar(
+          selectedIndex: _selectedCategoryIndex > 3 ? 0 : _selectedCategoryIndex,
+          onDestinationSelected: (index) {
+            if (index == 4) {
+              context.push('/preview-studio');
+            } else {
+              setState(() {
+                _selectedCategoryIndex = index;
+              });
+            }
+          },
+          backgroundColor: Colors.transparent,
+          indicatorColor: AppColors.primary.withValues(alpha: 0.12),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home_rounded, color: AppColors.primary),
+              label: 'Home',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.favorite_border_rounded),
+              selectedIcon: Icon(Icons.favorite_rounded, color: AppColors.primary),
+              label: 'Biodata',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.mail_outline_rounded),
+              selectedIcon: Icon(Icons.mail_rounded, color: AppColors.primary),
+              label: 'Invitations',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.description_outlined),
+              selectedIcon: Icon(Icons.description_rounded, color: AppColors.primary),
+              label: 'Resume',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.palette_outlined),
+              selectedIcon: Icon(Icons.palette_rounded, color: AppColors.primary),
+              label: 'Studio',
+            ),
+          ],
+        ),
+      ),
       body: SingleChildScrollView(
         child: Center(
           child: Container(
@@ -340,6 +395,49 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Widget? _buildFloatingActionButton(
+    BuildContext context,
+    BiodataProvider bioProvider,
+    InvitationProvider invProvider,
+    ResumeProvider resProvider,
+  ) {
+    if (_selectedCategoryIndex == 1) {
+      return FloatingActionButton.extended(
+        onPressed: () {
+          bioProvider.createNewBiodata();
+          context.push('/create-biodata');
+        },
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('New Biodata'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+      );
+    } else if (_selectedCategoryIndex == 2) {
+      return FloatingActionButton.extended(
+        onPressed: () {
+          invProvider.createNewInvitation();
+          context.push('/create-invitation');
+        },
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('New Invitation'),
+        backgroundColor: const Color(0xFFD97706),
+        foregroundColor: Colors.white,
+      );
+    } else if (_selectedCategoryIndex == 3) {
+      return FloatingActionButton.extended(
+        onPressed: () {
+          resProvider.createNewResume();
+          context.push('/create-resume');
+        },
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('New Resume'),
+        backgroundColor: const Color(0xFF1E3A8A),
+        foregroundColor: Colors.white,
+      );
+    }
+    return null;
   }
 
   Widget _buildHeroBanner(BuildContext context) {

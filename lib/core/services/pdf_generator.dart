@@ -463,10 +463,13 @@ class PdfGenerator {
                   biodata.religionHeading,
                   style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold, color: primaryColor),
                 ),
-              pw.SizedBox(height: 6),
-
               pw.Text(
-                biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
+                '॥ विवाह परिचय पत्र ॥',
+                style: pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold, color: borderColor, letterSpacing: 1.5),
+              ),
+              pw.Divider(color: borderColor, thickness: 1, height: 10),
+              pw.Text(
+                biodata.fullName.isNotEmpty ? biodata.fullName : 'वर / वधू का नाम',
                 style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold, color: primaryColor),
               ),
               pw.SizedBox(height: 8),
