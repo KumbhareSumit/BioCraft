@@ -55,34 +55,19 @@ class PastelLavenderTemplate extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
                       decoration: BoxDecoration(
                         color: softLilacBg,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: cardBorder),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'MARRIAGE BIODATA',
-                            style: GoogleFonts.outfit(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF8B5CF6),
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
-                            style: GoogleFonts.outfit(
-                              fontSize: 19,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF4C1D95),
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
+                        style: GoogleFonts.outfit(
+                          fontSize: 19,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF4C1D95),
+                        ),
                       ),
                     ),
                   ),
@@ -99,17 +84,6 @@ class PastelLavenderTemplate extends StatelessWidget {
               ),
             )
           else ...[
-            Text(
-              'MARRIAGE BIODATA',
-              style: GoogleFonts.outfit(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF8B5CF6),
-                letterSpacing: 2,
-              ),
-            ),
-            const SizedBox(height: 12),
-
             // Header Card
             Container(
               width: double.infinity,

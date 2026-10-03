@@ -51,28 +51,13 @@ class FloralEleganceTemplate extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '~ Marriage Biodata ~',
-                          style: GoogleFonts.cormorantGaramond(
-                            fontSize: 16,
-                            fontStyle: FontStyle.italic,
-                            fontWeight: FontWeight.w600,
-                            color: primaryColor.withValues(alpha: 0.8),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
-                          style: GoogleFonts.cormorantGaramond(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: primaryColor,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
+                      style: GoogleFonts.cormorantGaramond(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: primaryColor,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -89,17 +74,8 @@ class FloralEleganceTemplate extends StatelessWidget {
             )
           else ...[
             Text(
-              '~ Marriage Biodata ~',
-              style: GoogleFonts.cormorantGaramond(
-                fontSize: 18,
-                fontStyle: FontStyle.italic,
-                fontWeight: FontWeight.w600,
-                color: primaryColor.withValues(alpha: 0.8),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
               biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
+              textAlign: TextAlign.center,
               style: GoogleFonts.cormorantGaramond(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,

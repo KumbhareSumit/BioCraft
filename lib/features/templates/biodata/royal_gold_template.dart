@@ -53,34 +53,13 @@ class RoyalGoldTemplate extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              'MATRIMONIAL BIODATA',
-                              style: GoogleFonts.cinzel(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: gold,
-                                letterSpacing: 1.5,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(child: Container(height: 1, color: gold)),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
-                          style: GoogleFonts.cinzel(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: primaryColor,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
+                      style: GoogleFonts.cinzel(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: primaryColor,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -95,30 +74,9 @@ class RoyalGoldTemplate extends StatelessWidget {
               ),
             )
           else ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Row(
-                children: [
-                  Expanded(child: Container(height: 1, color: gold)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      'MATRIMONIAL BIODATA',
-                      style: GoogleFonts.cinzel(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: gold,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ),
-                  Expanded(child: Container(height: 1, color: gold)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 14),
             Text(
               biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
+              textAlign: TextAlign.center,
               style: GoogleFonts.cinzel(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,

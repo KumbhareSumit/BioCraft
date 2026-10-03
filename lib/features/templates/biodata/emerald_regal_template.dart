@@ -60,36 +60,13 @@ class EmeraldRegalTemplate extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: emeraldPrimary,
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: goldAccent),
-                            ),
-                            child: Text(
-                              '✦ MATRIMONIAL BIODATA ✦',
-                              style: GoogleFonts.cinzel(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: goldAccent,
-                                letterSpacing: 1.5,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
-                            style: GoogleFonts.cinzel(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: emeraldPrimary,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
+                        style: GoogleFonts.cinzel(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: emeraldPrimary,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -104,25 +81,6 @@ class EmeraldRegalTemplate extends StatelessWidget {
                 ),
               )
             else ...[
-              // Ornate Header Banner
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                decoration: BoxDecoration(
-                  color: emeraldPrimary,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: goldAccent),
-                ),
-                child: Text(
-                  '✦ MATRIMONIAL BIODATA ✦',
-                  style: GoogleFonts.cinzel(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: goldAccent,
-                    letterSpacing: 2,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
               Text(
                 biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
                 textAlign: TextAlign.center,

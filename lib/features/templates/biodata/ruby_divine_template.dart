@@ -60,34 +60,13 @@ class RubyDivineTemplate extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                '॥ शुभ विवाह बायोडेटा ॥',
-                                style: GoogleFonts.cinzel(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: rubyPrimary,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(child: Divider(color: goldAccent, thickness: 1)),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
-                            style: GoogleFonts.cinzel(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: rubyPrimary,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
+                        style: GoogleFonts.cinzel(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: rubyPrimary,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -102,26 +81,6 @@ class RubyDivineTemplate extends StatelessWidget {
                 ),
               )
             else ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(child: Divider(color: goldAccent, thickness: 1)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Text(
-                      '॥ शुभ विवाह बायोडेटा ॥',
-                      style: GoogleFonts.cinzel(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: rubyPrimary,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ),
-                  Expanded(child: Divider(color: goldAccent, thickness: 1)),
-                ],
-              ),
-              const SizedBox(height: 14),
               Text(
                 biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
                 textAlign: TextAlign.center,

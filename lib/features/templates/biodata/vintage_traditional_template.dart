@@ -49,27 +49,13 @@ class VintageTraditionalTemplate extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '॥ विवाह परिचय पत्र ॥',
-                          style: GoogleFonts.cinzelDecorative(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: vintageGold,
-                          ),
-                        ),
-                        const Divider(color: vintageGold, thickness: 1.5, height: 12),
-                        Text(
-                          biodata.fullName.isNotEmpty ? biodata.fullName : 'वर / वधू का नाम',
-                          style: GoogleFonts.cinzelDecorative(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: primaryColor,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      biodata.fullName.isNotEmpty ? biodata.fullName : 'वर / वधू का नाम',
+                      style: GoogleFonts.cinzelDecorative(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: primaryColor,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -85,23 +71,15 @@ class VintageTraditionalTemplate extends StatelessWidget {
             )
           else ...[
             Text(
-              '॥ विवाह परिचय पत्र ॥',
-              style: GoogleFonts.cinzelDecorative(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: vintageGold,
-              ),
-            ),
-            const Divider(color: vintageGold, thickness: 1.5, height: 16),
-            Text(
               biodata.fullName.isNotEmpty ? biodata.fullName : 'वर / वधू का नाम',
+              textAlign: TextAlign.center,
               style: GoogleFonts.cinzelDecorative(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: primaryColor,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
           ],
 
           _buildSection('व्यक्तिगत विवरण (Personal Details)', [

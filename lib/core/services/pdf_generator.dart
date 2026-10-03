@@ -82,27 +82,7 @@ class PdfGenerator {
                     color: primaryColor,
                   ),
                 ),
-              pw.SizedBox(height: 4),
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.center,
-                children: [
-                  pw.Container(height: 1, width: 35, color: goldColor),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.symmetric(horizontal: 8),
-                    child: pw.Text(
-                      'MATRIMONIAL BIODATA',
-                      style: pw.TextStyle(
-                        fontSize: 14,
-                        fontWeight: pw.FontWeight.bold,
-                        color: goldColor,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ),
-                  pw.Container(height: 1, width: 35, color: goldColor),
-                ],
-              ),
-              pw.SizedBox(height: 8),
+              pw.SizedBox(height: 6),
 
               // Candidate Name & Headline
               pw.Text(
@@ -246,15 +226,6 @@ class PdfGenerator {
                     color: primaryColor,
                   ),
                 ),
-              pw.Text(
-                '~ Marriage Biodata ~',
-                style: pw.TextStyle(
-                  fontSize: 15,
-                  fontStyle: pw.FontStyle.italic,
-                  fontWeight: pw.FontWeight.bold,
-                  color: primaryColor,
-                ),
-              ),
               pw.SizedBox(height: 6),
               pw.Text(
                 biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
@@ -492,11 +463,7 @@ class PdfGenerator {
                   biodata.religionHeading,
                   style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold, color: primaryColor),
                 ),
-              pw.Text(
-                'BIODATA',
-                style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold, color: borderColor, letterSpacing: 2),
-              ),
-              pw.Divider(color: borderColor, thickness: 1, height: 10),
+              pw.SizedBox(height: 6),
 
               pw.Text(
                 biodata.fullName.isNotEmpty ? biodata.fullName : 'Candidate Name',
