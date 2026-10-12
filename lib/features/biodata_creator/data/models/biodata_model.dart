@@ -31,6 +31,8 @@ class BiodataModel {
   final String manglik;
   final String kuldaivat;
   final String? profileImagePath;
+  final String? extraPhoto1Path;
+  final String? extraPhoto2Path;
 
   // Education & Career
   final String highestEducation;
@@ -100,6 +102,8 @@ class BiodataModel {
     this.manglik = 'No',
     this.kuldaivat = '',
     this.profileImagePath,
+    this.extraPhoto1Path,
+    this.extraPhoto2Path,
     this.highestEducation = '',
     this.educationDetails = '',
     this.occupation = '',
@@ -327,6 +331,10 @@ class BiodataModel {
     return parts.join(' • ');
   }
 
+  bool get hasExtraPhotos =>
+      (extraPhoto1Path != null && extraPhoto1Path!.trim().isNotEmpty) ||
+      (extraPhoto2Path != null && extraPhoto2Path!.trim().isNotEmpty);
+
   BiodataModel copyWith({
     String? id,
     String? templateId,
@@ -356,6 +364,11 @@ class BiodataModel {
     String? manglik,
     String? kuldaivat,
     String? profileImagePath,
+    bool clearProfileImage = false,
+    String? extraPhoto1Path,
+    bool clearExtraPhoto1 = false,
+    String? extraPhoto2Path,
+    bool clearExtraPhoto2 = false,
     String? highestEducation,
     String? educationDetails,
     String? occupation,
@@ -417,7 +430,9 @@ class BiodataModel {
       nadi: nadi ?? this.nadi,
       manglik: manglik ?? this.manglik,
       kuldaivat: kuldaivat ?? this.kuldaivat,
-      profileImagePath: profileImagePath ?? this.profileImagePath,
+      profileImagePath: clearProfileImage ? null : (profileImagePath ?? this.profileImagePath),
+      extraPhoto1Path: clearExtraPhoto1 ? null : (extraPhoto1Path ?? this.extraPhoto1Path),
+      extraPhoto2Path: clearExtraPhoto2 ? null : (extraPhoto2Path ?? this.extraPhoto2Path),
       highestEducation: highestEducation ?? this.highestEducation,
       educationDetails: educationDetails ?? this.educationDetails,
       occupation: occupation ?? this.occupation,
@@ -483,6 +498,8 @@ class BiodataModel {
       'manglik': manglik,
       'kuldaivat': kuldaivat,
       'profileImagePath': profileImagePath,
+      'extraPhoto1Path': extraPhoto1Path,
+      'extraPhoto2Path': extraPhoto2Path,
       'highestEducation': highestEducation,
       'educationDetails': educationDetails,
       'occupation': occupation,
@@ -548,6 +565,8 @@ class BiodataModel {
       manglik: map['manglik'] ?? 'No',
       kuldaivat: map['kuldaivat'] ?? '',
       profileImagePath: map['profileImagePath'],
+      extraPhoto1Path: map['extraPhoto1Path'],
+      extraPhoto2Path: map['extraPhoto2Path'],
       highestEducation: map['highestEducation'] ?? '',
       educationDetails: map['educationDetails'] ?? '',
       occupation: map['occupation'] ?? '',

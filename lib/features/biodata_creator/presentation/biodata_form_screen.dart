@@ -83,6 +83,8 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
   String _selectedContactType = "Father's Number";
   String _selectedAltContactType = "Mother's Number";
   String? _profileImagePath;
+  String? _extraPhoto1Path;
+  String? _extraPhoto2Path;
   String? _loadedBiodataId;
 
   @override
@@ -212,6 +214,8 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
     _selectedContactType = bio.contactType.isNotEmpty ? bio.contactType : "Father's Number";
     _selectedAltContactType = bio.alternateContactType.isNotEmpty ? bio.alternateContactType : "Mother's Number";
     _profileImagePath = bio.profileImagePath;
+    _extraPhoto1Path = bio.extraPhoto1Path;
+    _extraPhoto2Path = bio.extraPhoto2Path;
   }
 
 
@@ -291,7 +295,12 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
         nadi: _nadiController.text.trim(),
         manglik: _selectedManglik,
         kuldaivat: _kuldaivatController.text.trim(),
+        clearProfileImage: _profileImagePath == null,
         profileImagePath: _profileImagePath,
+        clearExtraPhoto1: _extraPhoto1Path == null,
+        extraPhoto1Path: _extraPhoto1Path,
+        clearExtraPhoto2: _extraPhoto2Path == null,
+        extraPhoto2Path: _extraPhoto2Path,
         highestEducation: _educationController.text.trim(),
         educationDetails: _eduDetailsController.text.trim(),
         occupation: _occupationController.text.trim(),
@@ -359,6 +368,96 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
       _profileImagePath = null;
     });
     _syncToProvider();
+  }
+
+  Future<void> _pickExtraPhoto(int photoIndex, ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 1600,
+        maxHeight: 1600,
+        imageQuality: 90,
+      );
+      if (pickedFile != null) {
+        setState(() {
+          if (photoIndex == 1) {
+            _extraPhoto1Path = pickedFile.path;
+          } else {
+            _extraPhoto2Path = pickedFile.path;
+          }
+        });
+        _syncToProvider();
+      }
+    } catch (e) {
+      debugPrint('Error picking extra photo: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to pick photo: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _removeExtraPhoto(int photoIndex) {
+    setState(() {
+      if (photoIndex == 1) {
+        _extraPhoto1Path = null;
+      } else {
+        _extraPhoto2Path = null;
+      }
+    });
+    _syncToProvider();
+  }
+
+  void _showExtraPhotoSourceSheet(int photoIndex) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  photoIndex == 1 ? 'Add Extra Photo 1' : 'Add Extra Photo 2',
+                  style: GoogleFonts.outfit(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  leading: const Icon(Icons.photo_library_outlined, color: AppColors.primary),
+                  title: const Text('Choose from Gallery'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _pickExtraPhoto(photoIndex, ImageSource.gallery);
+                  },
+                ),
+                if (!kIsWeb)
+                  ListTile(
+                    leading: const Icon(Icons.camera_alt_outlined, color: AppColors.primary),
+                    title: const Text('Take a Photo with Camera'),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      _pickExtraPhoto(photoIndex, ImageSource.camera);
+                    },
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
 
@@ -667,11 +766,185 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
     );
   }
 
+  Widget _buildExtraPhotosSection() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 18),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant.withValues(alpha: 0.25),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.photo_library_rounded, size: 18, color: AppColors.primary),
+              const SizedBox(width: 8),
+              Text(
+                'Extra Photos for Page 2',
+                style: GoogleFonts.outfit(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  'Optional',
+                  style: GoogleFonts.outfit(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Add 1 or 2 full photos (e.g. Full-length, Traditional wear). If added, a matching second page will automatically be created in your PDF.',
+            style: GoogleFonts.outfit(
+              fontSize: 11,
+              color: AppColors.textSecondary,
+              height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: _buildExtraPhotoCard(
+                  photoIndex: 1,
+                  imagePath: _extraPhoto1Path,
+                  title: 'Photo 1',
+                  subtitle: 'Full-length photo',
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildExtraPhotoCard(
+                  photoIndex: 2,
+                  imagePath: _extraPhoto2Path,
+                  title: 'Photo 2',
+                  subtitle: 'Traditional / Casual',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExtraPhotoCard({
+    required int photoIndex,
+    required String? imagePath,
+    required String title,
+    required String subtitle,
+  }) {
+    final hasImage = imagePath != null && imagePath.trim().isNotEmpty;
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: hasImage ? AppColors.primary.withValues(alpha: 0.4) : AppColors.border,
+          width: hasImage ? 1.5 : 1.0,
+        ),
+      ),
+      child: Column(
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              BiodataPhotoFrame(
+                imagePath: imagePath,
+                width: 72,
+                height: 90,
+                borderRadius: 6,
+                borderColor: hasImage ? AppColors.primary : Colors.grey.shade300,
+                innerBorderColor: hasImage ? AppColors.secondaryDark : null,
+              ),
+              if (hasImage)
+                Positioned(
+                  top: -6,
+                  right: -6,
+                  child: InkWell(
+                    onTap: () => _removeExtraPhoto(photoIndex),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.close, size: 12, color: Colors.white),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: GoogleFonts.outfit(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          Text(
+            subtitle,
+            style: GoogleFonts.outfit(
+              fontSize: 10,
+              color: AppColors.textSecondary,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () => _showExtraPhotoSourceSheet(photoIndex),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                side: BorderSide(
+                  color: hasImage ? AppColors.primary : AppColors.border,
+                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                backgroundColor: hasImage ? AppColors.primary.withValues(alpha: 0.05) : null,
+              ),
+              child: Text(
+                hasImage ? 'Change' : '+ Add',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: hasImage ? AppColors.primary : AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStep1Personal() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildPhotoUploadSection(),
+        _buildExtraPhotosSection(),
         _buildSectionTitle('Basic Details', Icons.person_outline),
         const SizedBox(height: 12),
         CustomTextField(

@@ -61,6 +61,31 @@ class ShareService {
     );
   }
 
+  static Future<void> shareMultipleImages(
+    List<Uint8List> imagesBytes, {
+    required List<String> filenames,
+    String? subject,
+    String? text,
+  }) async {
+    try {
+      if (kIsWeb) return;
+      final tempDir = await getTemporaryDirectory();
+      final List<XFile> files = [];
+      for (int i = 0; i < imagesBytes.length; i++) {
+        final f = File('${tempDir.path}/${filenames[i]}');
+        await f.writeAsBytes(imagesBytes[i]);
+        files.add(XFile(f.path, mimeType: 'image/png'));
+      }
+      await Share.shareXFiles(
+        files,
+        subject: subject,
+        text: text,
+      );
+    } catch (e) {
+      debugPrint('Error sharing multiple images: $e');
+    }
+  }
+
   static Future<void> printDocument(Uint8List pdfBytes, {String name = 'BioCraft Document'}) async {
     await Printing.layoutPdf(
       onLayout: (format) async => pdfBytes,

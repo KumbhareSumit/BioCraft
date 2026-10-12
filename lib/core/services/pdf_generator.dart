@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -5,29 +6,36 @@ import '../../features/biodata_creator/data/models/biodata_model.dart';
 import '../../features/invitation_creator/data/models/invitation_model.dart';
 
 class PdfGenerator {
-  static Future<Uint8List> generatePdfFromRenderedImage(
-    Uint8List imageBytes, {
+  static Future<Uint8List> generatePdfFromRenderedImages(
+    List<Uint8List> imagesBytes, {
     PdfPageFormat pageFormat = PdfPageFormat.a4,
   }) async {
     final pdf = pw.Document();
-    final image = pw.MemoryImage(imageBytes);
-
-    pdf.addPage(
-      pw.Page(
-        pageFormat: pageFormat,
-        margin: pw.EdgeInsets.zero,
-        build: (pw.Context context) {
-          return pw.Center(
-            child: pw.Image(
-              image,
-              fit: pw.BoxFit.fill,
-            ),
-          );
-        },
-      ),
-    );
-
+    for (final imageBytes in imagesBytes) {
+      final image = pw.MemoryImage(imageBytes);
+      pdf.addPage(
+        pw.Page(
+          pageFormat: pageFormat,
+          margin: pw.EdgeInsets.zero,
+          build: (pw.Context context) {
+            return pw.Center(
+              child: pw.Image(
+                image,
+                fit: pw.BoxFit.fill,
+              ),
+            );
+          },
+        ),
+      );
+    }
     return pdf.save();
+  }
+
+  static Future<Uint8List> generatePdfFromRenderedImage(
+    Uint8List imageBytes, {
+    PdfPageFormat pageFormat = PdfPageFormat.a4,
+  }) {
+    return generatePdfFromRenderedImages([imageBytes], pageFormat: pageFormat);
   }
 
   static Future<Uint8List> generateBiodataPdf(BiodataModel biodata) async {
@@ -49,7 +57,80 @@ class PdfGenerator {
         break;
     }
 
+    if (biodata.hasExtraPhotos) {
+      pdf.addPage(_buildExtraPhotosPdfPage(biodata));
+    }
+
     return pdf.save();
+  }
+
+  static pw.Page _buildExtraPhotosPdfPage(BiodataModel biodata) {
+    final goldColor = PdfColor.fromInt(0xFFD4AF37);
+
+    Uint8List? photo1Bytes;
+    if (biodata.extraPhoto1Path != null && biodata.extraPhoto1Path!.isNotEmpty) {
+      try {
+        final f = File(biodata.extraPhoto1Path!);
+        if (f.existsSync()) photo1Bytes = f.readAsBytesSync();
+      } catch (_) {}
+    }
+
+    Uint8List? photo2Bytes;
+    if (biodata.extraPhoto2Path != null && biodata.extraPhoto2Path!.isNotEmpty) {
+      try {
+        final f = File(biodata.extraPhoto2Path!);
+        if (f.existsSync()) photo2Bytes = f.readAsBytesSync();
+      } catch (_) {}
+    }
+
+    final has1 = photo1Bytes != null;
+    final has2 = photo2Bytes != null;
+
+    return pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.all(24),
+      build: (pw.Context context) {
+        return pw.Container(
+          decoration: pw.BoxDecoration(
+            border: pw.Border.all(color: goldColor, width: 2.5),
+          ),
+          padding: const pw.EdgeInsets.all(16),
+          child: pw.Center(
+            child: (has1 && has2)
+                ? pw.Column(
+                    mainAxisAlignment: pw.MainAxisAlignment.center,
+                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                    children: [
+                      pw.Container(
+                        height: 360,
+                        child: pw.Center(
+                          child: pw.Image(pw.MemoryImage(photo1Bytes!), fit: pw.BoxFit.contain),
+                        ),
+                      ),
+                      pw.SizedBox(height: 18),
+                      pw.Container(
+                        height: 360,
+                        child: pw.Center(
+                          child: pw.Image(pw.MemoryImage(photo2Bytes!), fit: pw.BoxFit.contain),
+                        ),
+                      ),
+                    ],
+                  )
+                : (has1 || has2)
+                    ? pw.Container(
+                        height: 740,
+                        child: pw.Center(
+                          child: pw.Image(
+                            pw.MemoryImage((photo1Bytes ?? photo2Bytes)!),
+                            fit: pw.BoxFit.contain,
+                          ),
+                        ),
+                      )
+                    : pw.SizedBox.shrink(),
+          ),
+        );
+      },
+    );
   }
 
   // ==========================================

@@ -15,6 +15,7 @@ import '../../../core/widgets/color_picker_widget.dart';
 import '../../biodata_creator/logic/biodata_provider.dart';
 import '../../invitation_creator/logic/invitation_provider.dart';
 import '../../resume_creator/logic/resume_provider.dart';
+import '../../templates/biodata/biodata_extra_photos_page.dart';
 import '../../templates/biodata/emerald_regal_template.dart';
 import '../../templates/biodata/floral_elegance_template.dart';
 import '../../templates/biodata/modern_minimal_template.dart';
@@ -50,6 +51,7 @@ class PreviewStudioScreen extends StatefulWidget {
 
 class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
   final GlobalKey _previewContainerKey = GlobalKey();
+  final GlobalKey _page2ContainerKey = GlobalKey();
   final TransformationController _transformController = TransformationController();
 
   late StudioCategory _selectedCategory;
@@ -98,19 +100,33 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
   Future<void> _exportPdf() async {
     final previewProvider = context.read<PreviewProvider>();
     previewProvider.setIsExporting(true);
+    final hasPage2 = _selectedCategory == StudioCategory.biodata &&
+        context.read<BiodataProvider>().currentBiodata.hasExtraPhotos;
+    final String docTitle = _getDocTitle();
+    final pageFormat = _selectedCategory == StudioCategory.invitation
+        ? PdfPageFormat.a5
+        : PdfPageFormat.a4;
+
     try {
       final imageBytes = await ImageExporter.captureWidgetAsImage(
         _previewContainerKey,
         pixelRatio: 3.5,
       );
 
-      final String docTitle = _getDocTitle();
-      final pageFormat = _selectedCategory == StudioCategory.invitation
-          ? PdfPageFormat.a5
-          : PdfPageFormat.a4;
+      Uint8List? page2Bytes;
+      if (hasPage2) {
+        page2Bytes = await ImageExporter.captureWidgetAsImage(
+          _page2ContainerKey,
+          pixelRatio: 3.5,
+        );
+      }
 
-      final pdfBytes = imageBytes != null
-          ? await PdfGenerator.generatePdfFromRenderedImage(imageBytes, pageFormat: pageFormat)
+      final List<Uint8List> pages = [];
+      if (imageBytes != null) pages.add(imageBytes);
+      if (page2Bytes != null) pages.add(page2Bytes);
+
+      final pdfBytes = pages.isNotEmpty
+          ? await PdfGenerator.generatePdfFromRenderedImages(pages, pageFormat: pageFormat)
           : await _generateFallbackPdf();
 
       await Printing.layoutPdf(
@@ -143,15 +159,34 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
   Future<void> _exportImage() async {
     final previewProvider = context.read<PreviewProvider>();
     previewProvider.setIsExporting(true);
+    final hasPage2 = _selectedCategory == StudioCategory.biodata &&
+        context.read<BiodataProvider>().currentBiodata.hasExtraPhotos;
+    final docTitle = _getDocTitle();
+
     try {
       final imageBytes = await ImageExporter.captureWidgetAsImage(_previewContainerKey, pixelRatio: 3.5);
-      if (imageBytes != null) {
-        final docTitle = _getDocTitle();
-        await ShareService.shareImage(
-          imageBytes,
-          filename: '$docTitle.png',
-          text: 'Check out this document created with BioCraft Studio!',
+      Uint8List? page2Bytes;
+      if (hasPage2) {
+        page2Bytes = await ImageExporter.captureWidgetAsImage(
+          _page2ContainerKey,
+          pixelRatio: 3.5,
         );
+      }
+
+      if (imageBytes != null) {
+        if (page2Bytes != null) {
+          await ShareService.shareMultipleImages(
+            [imageBytes, page2Bytes],
+            filenames: ['${docTitle}_Page1.png', '${docTitle}_Page2_Photos.png'],
+            text: 'Check out this document created with BioCraft Studio!',
+          );
+        } else {
+          await ShareService.shareImage(
+            imageBytes,
+            filename: '$docTitle.png',
+            text: 'Check out this document created with BioCraft Studio!',
+          );
+        }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -178,19 +213,33 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
   Future<void> _sharePdf() async {
     final previewProvider = context.read<PreviewProvider>();
     previewProvider.setIsExporting(true);
+    final hasPage2 = _selectedCategory == StudioCategory.biodata &&
+        context.read<BiodataProvider>().currentBiodata.hasExtraPhotos;
+    final String docTitle = _getDocTitle();
+    final pageFormat = _selectedCategory == StudioCategory.invitation
+        ? PdfPageFormat.a5
+        : PdfPageFormat.a4;
+
     try {
       final imageBytes = await ImageExporter.captureWidgetAsImage(
         _previewContainerKey,
         pixelRatio: 3.5,
       );
 
-      final String docTitle = _getDocTitle();
-      final pageFormat = _selectedCategory == StudioCategory.invitation
-          ? PdfPageFormat.a5
-          : PdfPageFormat.a4;
+      Uint8List? page2Bytes;
+      if (hasPage2) {
+        page2Bytes = await ImageExporter.captureWidgetAsImage(
+          _page2ContainerKey,
+          pixelRatio: 3.5,
+        );
+      }
 
-      final pdfBytes = imageBytes != null
-          ? await PdfGenerator.generatePdfFromRenderedImage(imageBytes, pageFormat: pageFormat)
+      final List<Uint8List> pages = [];
+      if (imageBytes != null) pages.add(imageBytes);
+      if (page2Bytes != null) pages.add(page2Bytes);
+
+      final pdfBytes = pages.isNotEmpty
+          ? await PdfGenerator.generatePdfFromRenderedImages(pages, pageFormat: pageFormat)
           : await _generateFallbackPdf();
 
       await ShareService.sharePdf(
@@ -371,6 +420,9 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
   Widget _buildCanvasArea(PreviewProvider previewProvider) {
     final double canvasWidth = _selectedCategory == StudioCategory.invitation ? 420 : 595;
     final double canvasMinHeight = _selectedCategory == StudioCategory.invitation ? 595 : 842;
+    final bool hasPage2 = _selectedCategory == StudioCategory.biodata &&
+        context.watch<BiodataProvider>().currentBiodata.hasExtraPhotos;
+    final biodata = context.watch<BiodataProvider>().currentBiodata;
 
     return Container(
       color: const Color(0xFFF0EBE1),
@@ -390,25 +442,83 @@ class _PreviewStudioScreenState extends State<PreviewStudioScreen> {
                     padding: const EdgeInsets.all(24),
                     child: SizedBox(
                       width: canvasWidth,
-                      child: Container(
-                        constraints: BoxConstraints(
-                          minHeight: canvasMinHeight,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.15),
-                              blurRadius: 20,
-                              spreadRadius: 4,
-                              offset: const Offset(0, 8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            constraints: BoxConstraints(
+                              minHeight: canvasMinHeight,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.15),
+                                  blurRadius: 20,
+                                  spreadRadius: 4,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: RepaintBoundary(
+                              key: _previewContainerKey,
+                              child: _buildActiveTemplateWidget(),
+                            ),
+                          ),
+                          if (hasPage2) ...[
+                            const SizedBox(height: 28),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade900,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    blurRadius: 6,
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(Icons.photo_library_outlined, size: 14, color: Colors.amber),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'PAGE 2 • PHOTO ALBUM',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Container(
+                              constraints: BoxConstraints(
+                                minHeight: canvasMinHeight,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.15),
+                                    blurRadius: 20,
+                                    spreadRadius: 4,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: RepaintBoundary(
+                                key: _page2ContainerKey,
+                                child: BiodataExtraPhotosPage(biodata: biodata),
+                              ),
                             ),
                           ],
-                        ),
-                        child: RepaintBoundary(
-                          key: _previewContainerKey,
-                          child: _buildActiveTemplateWidget(),
-                        ),
+                        ],
                       ),
                     ),
                   ),

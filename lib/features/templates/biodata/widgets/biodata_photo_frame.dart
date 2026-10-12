@@ -11,6 +11,7 @@ class BiodataPhotoFrame extends StatelessWidget {
   final double borderWidth;
   final double borderRadius;
   final bool showShadow;
+  final BoxFit fit;
 
   const BiodataPhotoFrame({
     super.key,
@@ -22,6 +23,7 @@ class BiodataPhotoFrame extends StatelessWidget {
     this.borderWidth = 2.0,
     this.borderRadius = 6.0,
     this.showShadow = true,
+    this.fit = BoxFit.cover,
   });
 
   @override
@@ -92,7 +94,7 @@ class BiodataPhotoFrame extends StatelessWidget {
     if (kIsWeb || path.startsWith('http://') || path.startsWith('https://')) {
       return Image.network(
         path,
-        fit: BoxFit.cover,
+        fit: fit,
         width: width,
         height: height,
         errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
@@ -102,7 +104,7 @@ class BiodataPhotoFrame extends StatelessWidget {
     if (path.startsWith('assets/')) {
       return Image.asset(
         path,
-        fit: BoxFit.cover,
+        fit: fit,
         width: width,
         height: height,
         errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
@@ -111,7 +113,7 @@ class BiodataPhotoFrame extends StatelessWidget {
 
     return Image.file(
       File(path),
-      fit: BoxFit.cover,
+      fit: fit,
       width: width,
       height: height,
       errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
