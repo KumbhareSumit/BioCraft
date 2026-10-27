@@ -139,14 +139,32 @@ class BiodataModel {
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
+  static bool isValuePresent(String? value) {
+    if (value == null) return false;
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return false;
+    final lower = trimmed.toLowerCase();
+    return lower != 'none' &&
+        lower != 'n/a' &&
+        lower != 'na' &&
+        lower != 'nil' &&
+        lower != 'not specified' &&
+        lower != 'null' &&
+        lower != '-' &&
+        lower != '--' &&
+        lower != '|' &&
+        lower != '/' &&
+        lower != '()';
+  }
+
   bool get hasBrothers {
     if (brothersCount.isEmpty && brothersDetails.isEmpty) return false;
     final count = brothersCount.trim().toLowerCase();
     final details = brothersDetails.trim().toLowerCase();
-    if ((count == '0' || count == 'none' || count == 'no' || count.isEmpty) &&
-        (details == 'none' || details == 'no' || details.isEmpty || details == '0')) {
+    if (!BiodataModel.isValuePresent(count) && !BiodataModel.isValuePresent(details)) {
       return false;
     }
+    if (count == '0' || details == '0' || count == 'no' || details == 'no') return false;
     return true;
   }
 
@@ -154,27 +172,27 @@ class BiodataModel {
     if (sistersCount.isEmpty && sistersDetails.isEmpty) return false;
     final count = sistersCount.trim().toLowerCase();
     final details = sistersDetails.trim().toLowerCase();
-    if ((count == '0' || count == 'none' || count == 'no' || count.isEmpty) &&
-        (details == 'none' || details == 'no' || details.isEmpty || details == '0')) {
+    if (!BiodataModel.isValuePresent(count) && !BiodataModel.isValuePresent(details)) {
       return false;
     }
+    if (count == '0' || details == '0' || count == 'no' || details == 'no') return false;
     return true;
   }
 
   String get displayBrothers {
     if (!hasBrothers) return '';
-    if (brothersDetails.isNotEmpty && brothersDetails.toLowerCase() != 'none') {
+    if (brothersDetails.isNotEmpty && BiodataModel.isValuePresent(brothersDetails)) {
       return brothersDetails;
     }
     final List<String> traits = [];
-    if (brotherRelation.isNotEmpty && brotherRelation != 'None') {
+    if (brotherRelation.isNotEmpty && BiodataModel.isValuePresent(brotherRelation)) {
       if (brotherRelation == 'Both' || brotherRelation == 'Both (Elder & Younger)') {
         traits.add('Elder & Younger');
       } else {
         traits.add(brotherRelation);
       }
     }
-    if (brotherMaritalStatus.isNotEmpty && brotherMaritalStatus != 'None') {
+    if (brotherMaritalStatus.isNotEmpty && BiodataModel.isValuePresent(brotherMaritalStatus)) {
       if (brotherMaritalStatus == 'Both' || brotherMaritalStatus == 'Both (Married & Unmarried)') {
         traits.add('Married & Unmarried');
       } else {
@@ -191,18 +209,18 @@ class BiodataModel {
 
   String get displaySisters {
     if (!hasSisters) return '';
-    if (sistersDetails.isNotEmpty && sistersDetails.toLowerCase() != 'none') {
+    if (sistersDetails.isNotEmpty && BiodataModel.isValuePresent(sistersDetails)) {
       return sistersDetails;
     }
     final List<String> traits = [];
-    if (sisterRelation.isNotEmpty && sisterRelation != 'None') {
+    if (sisterRelation.isNotEmpty && BiodataModel.isValuePresent(sisterRelation)) {
       if (sisterRelation == 'Both' || sisterRelation == 'Both (Elder & Younger)') {
         traits.add('Elder & Younger');
       } else {
         traits.add(sisterRelation);
       }
     }
-    if (sisterMaritalStatus.isNotEmpty && sisterMaritalStatus != 'None') {
+    if (sisterMaritalStatus.isNotEmpty && BiodataModel.isValuePresent(sisterMaritalStatus)) {
       if (sisterMaritalStatus == 'Both' || sisterMaritalStatus == 'Both (Married & Unmarried)') {
         traits.add('Married & Unmarried');
       } else {
@@ -217,22 +235,14 @@ class BiodataModel {
     return countStr;
   }
 
-  bool get hasFamilyType {
-    if (familyType.isEmpty) return false;
-    final val = familyType.trim().toLowerCase();
-    return val != 'none' && val != 'not specified' && val != 'no';
-  }
+  bool get hasFamilyType => BiodataModel.isValuePresent(familyType);
 
   String get displayFamilyType {
     if (!hasFamilyType) return '';
     return '$familyType Family';
   }
 
-  bool get hasFamilyValues {
-    if (familyValues.isEmpty) return false;
-    final val = familyValues.trim().toLowerCase();
-    return val != 'none' && val != 'not specified' && val != 'no';
-  }
+  bool get hasFamilyValues => BiodataModel.isValuePresent(familyValues);
 
   String get displayFamilyValues {
     if (!hasFamilyValues) return '';
@@ -240,7 +250,7 @@ class BiodataModel {
   }
 
   static String _formatNameTitle(String text) {
-    if (text.trim().isEmpty) return '';
+    if (!BiodataModel.isValuePresent(text)) return '';
     final words = text.trim().split(RegExp(r'\s+'));
     return words.map((w) {
       final lower = w.toLowerCase();
@@ -256,7 +266,7 @@ class BiodataModel {
 
   static String _formatOccupation(String text) {
     var occ = text.trim();
-    if (occ.isEmpty) return '';
+    if (!BiodataModel.isValuePresent(occ)) return '';
     if (occ.startsWith('(') && occ.endsWith(')')) {
       occ = occ.substring(1, occ.length - 1).trim();
     }
@@ -277,21 +287,26 @@ class BiodataModel {
   String get displayFatherDetails {
     final name = _formatNameTitle(fatherName);
     final occ = _formatOccupation(fatherOccupation);
-    if (name.isEmpty && occ.isEmpty) return '';
-    if (name.isNotEmpty && occ.isNotEmpty) return '$name ($occ)';
-    return name.isNotEmpty ? name : occ;
+    final hasName = BiodataModel.isValuePresent(name);
+    final hasOcc = BiodataModel.isValuePresent(occ);
+    if (!hasName && !hasOcc) return '';
+    if (hasName && hasOcc) return '$name ($occ)';
+    return hasName ? name : occ;
   }
 
   String get displayMotherDetails {
     final name = _formatNameTitle(motherName);
     final occ = _formatOccupation(motherOccupation);
-    if (name.isEmpty && occ.isEmpty) return '';
-    if (name.isNotEmpty && occ.isNotEmpty) return '$name ($occ)';
-    return name.isNotEmpty ? name : occ;
+    final hasName = BiodataModel.isValuePresent(name);
+    final hasOcc = BiodataModel.isValuePresent(occ);
+    if (!hasName && !hasOcc) return '';
+    if (hasName && hasOcc) return '$name ($occ)';
+    return hasName ? name : occ;
   }
 
   String get displayMaternalUncle {
-    return _formatNameTitle(maternalUncleDetails);
+    final name = _formatNameTitle(maternalUncleDetails);
+    return BiodataModel.isValuePresent(name) ? name : '';
   }
 
   String get primaryContactLabel {
@@ -347,22 +362,24 @@ class BiodataModel {
 
   // Astrology Display Helpers
   String get displayGotraDevak {
-    if (gotra.isNotEmpty && devak.isNotEmpty) return '$gotra / $devak';
-    if (gotra.isNotEmpty) return gotra;
-    if (devak.isNotEmpty) return devak;
+    final hasG = BiodataModel.isValuePresent(gotra);
+    final hasD = BiodataModel.isValuePresent(devak);
+    if (hasG && hasD) return '$gotra / $devak';
+    if (hasG) return gotra;
+    if (hasD) return devak;
     return '';
   }
 
   String get displayRashiNakshatra {
     final parts = <String>[];
-    if (rashi.isNotEmpty) parts.add(rashi);
-    if (nakshatra.isNotEmpty) {
-      if (charan.isNotEmpty) {
+    if (BiodataModel.isValuePresent(rashi)) parts.add(rashi);
+    if (BiodataModel.isValuePresent(nakshatra)) {
+      if (BiodataModel.isValuePresent(charan)) {
         parts.add('$nakshatra (Charan $charan)');
       } else {
         parts.add(nakshatra);
       }
-    } else if (charan.isNotEmpty) {
+    } else if (BiodataModel.isValuePresent(charan)) {
       parts.add('Charan $charan');
     }
     return parts.join(' • ');
@@ -370,10 +387,10 @@ class BiodataModel {
 
   String get displayManglikNadi {
     final parts = <String>[];
-    if (manglik.isNotEmpty && manglik.toLowerCase() != 'none') {
+    if (BiodataModel.isValuePresent(manglik) && manglik.trim().toLowerCase() != "don't know") {
       parts.add('Manglik: $manglik');
     }
-    if (nadi.isNotEmpty) {
+    if (BiodataModel.isValuePresent(nadi)) {
       parts.add('Nadi: $nadi');
     }
     return parts.join(' • ');
@@ -381,8 +398,8 @@ class BiodataModel {
 
   String get displayGanKuldaivat {
     final parts = <String>[];
-    if (gan.isNotEmpty) parts.add('Gan: $gan');
-    if (kuldaivat.isNotEmpty) parts.add('Kuldaivat: $kuldaivat');
+    if (BiodataModel.isValuePresent(gan)) parts.add('Gan: $gan');
+    if (BiodataModel.isValuePresent(kuldaivat)) parts.add('Kuldaivat: $kuldaivat');
     return parts.join(' • ');
   }
 

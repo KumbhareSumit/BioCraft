@@ -112,14 +112,16 @@ class ModernMinimalTemplate extends StatelessWidget {
           const SizedBox(height: 12),
 
           _buildGridSection('Family Details', [
-            _item('Father\'s Name', biodata.fatherName),
-            _item('Father Occupation', biodata.fatherOccupation),
-            _item('Mother\'s Name', biodata.motherName),
-            _item('Mother Occupation', biodata.motherOccupation),
+            if (BiodataModel.isValuePresent(biodata.displayFatherDetails))
+              _item('Father\'s Name', biodata.displayFatherDetails),
+            if (BiodataModel.isValuePresent(biodata.displayMotherDetails))
+              _item('Mother\'s Name', biodata.displayMotherDetails),
             if (biodata.hasBrothers) _item('Brothers', biodata.displayBrothers),
             if (biodata.hasSisters) _item('Sisters', biodata.displaySisters),
             if (biodata.hasFamilyType) _item('Family Type', biodata.displayFamilyType),
             if (biodata.hasFamilyValues) _item('Family Values', biodata.displayFamilyValues),
+            if (biodata.maternalUncleDetails.isNotEmpty)
+              _item('Mama / Uncle', biodata.displayMaternalUncle),
           ], primaryColor),
 
           const SizedBox(height: 12),
@@ -141,6 +143,12 @@ class ModernMinimalTemplate extends StatelessWidget {
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
         final itemWidth = (availableWidth - 12) / 2;
+        final validItems = items.where((w) {
+          if (w is SizedBox && w.width == 0.0 && w.height == 0.0) return false;
+          return true;
+        }).toList();
+
+        if (validItems.isEmpty) return const SizedBox.shrink();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,7 +172,7 @@ class ModernMinimalTemplate extends StatelessWidget {
             Wrap(
               spacing: 12,
               runSpacing: 6,
-              children: items.map((widget) {
+              children: validItems.map((widget) {
                 return SizedBox(
                   width: itemWidth > 110 ? itemWidth : availableWidth,
                   child: widget,
@@ -178,7 +186,7 @@ class ModernMinimalTemplate extends StatelessWidget {
   }
 
   Widget _item(String label, String value) {
-    if (value.trim().isEmpty) return const SizedBox.shrink();
+    if (!BiodataModel.isValuePresent(value)) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

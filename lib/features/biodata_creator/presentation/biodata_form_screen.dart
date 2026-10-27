@@ -204,9 +204,15 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
 
     _selectedGender = bio.gender.isNotEmpty ? bio.gender : 'Male';
     _selectedMaritalStatus = bio.maritalStatus.isNotEmpty ? bio.maritalStatus : 'Never Married';
-    _selectedManglik = bio.manglik.isNotEmpty ? bio.manglik : 'No';
-    _selectedFamilyType = bio.familyType.isNotEmpty ? bio.familyType : 'Nuclear';
-    _selectedFamilyValues = bio.familyValues.isNotEmpty ? bio.familyValues : 'Moderate';
+    _selectedManglik = ['None', 'No', 'Yes', 'Anshik (Partial)', 'Don\'t Know'].contains(bio.manglik)
+        ? bio.manglik
+        : (bio.manglik.isNotEmpty ? bio.manglik : 'No');
+    _selectedFamilyType = ['None', 'Nuclear', 'Joint'].contains(bio.familyType)
+        ? bio.familyType
+        : (bio.familyType.isNotEmpty ? bio.familyType : 'None');
+    _selectedFamilyValues = ['None', 'Moderate', 'Traditional', 'Liberal'].contains(bio.familyValues)
+        ? bio.familyValues
+        : (bio.familyValues.isNotEmpty ? bio.familyValues : 'Moderate');
     _selectedBrotherRelation = bio.brotherRelation.isNotEmpty ? bio.brotherRelation : 'Younger';
     _selectedBrotherMaritalStatus = bio.brotherMaritalStatus.isNotEmpty ? bio.brotherMaritalStatus : 'Unmarried';
     _selectedSisterRelation = bio.sisterRelation.isNotEmpty ? bio.sisterRelation : 'Younger';
@@ -1184,7 +1190,7 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
               child: _buildDropdown(
                 label: 'Manglik Status',
                 value: _selectedManglik,
-                items: ['No', 'Yes', 'Anshik (Partial)', 'Don\'t Know'],
+                items: ['None', 'No', 'Yes', 'Anshik (Partial)', 'Don\'t Know'],
                 onChanged: (val) => setState(() => _selectedManglik = val!),
               ),
             ),
@@ -1400,7 +1406,7 @@ class _BiodataFormScreenState extends State<BiodataFormScreen> {
               child: _buildDropdown(
                 label: 'Family Type',
                 value: _selectedFamilyType,
-                items: ['Nuclear', 'Joint'],
+                items: ['None', 'Nuclear', 'Joint'],
                 onChanged: (val) => setState(() => _selectedFamilyType = val!),
               ),
             ),

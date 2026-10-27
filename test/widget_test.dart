@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:biocraft/main.dart';
 import 'package:biocraft/features/biodata_creator/data/models/biodata_model.dart';
+import 'package:biocraft/core/services/pdf_generator.dart';
 import 'package:biocraft/features/invitation_creator/data/models/invitation_model.dart';
 import 'package:biocraft/features/resume_creator/data/models/resume_model.dart';
 import 'package:biocraft/features/templates/biodata/emerald_regal_template.dart';
@@ -106,4 +107,59 @@ void main() {
     expect(restored.fullName, resume.fullName);
     expect(restored.experiences.length, resume.experiences.length);
   });
+
+  test('BiodataModel smart omission filters none and na values', () {
+    expect(BiodataModel.isValuePresent(''), false);
+    expect(BiodataModel.isValuePresent('   '), false);
+    expect(BiodataModel.isValuePresent('None'), false);
+    expect(BiodataModel.isValuePresent('none'), false);
+    expect(BiodataModel.isValuePresent('N/A'), false);
+    expect(BiodataModel.isValuePresent('na'), false);
+    expect(BiodataModel.isValuePresent('Nil'), false);
+    expect(BiodataModel.isValuePresent('-'), false);
+    expect(BiodataModel.isValuePresent('Not Specified'), false);
+    expect(BiodataModel.isValuePresent('Software Engineer'), true);
+
+    final bioWithNone = BiodataModel(
+      id: '99',
+      fullName: 'Test User',
+      familyType: 'None',
+      familyValues: 'none',
+      brothersCount: 'None',
+      sistersCount: '0',
+      gotra: 'N/A',
+      devak: 'None',
+      annualIncome: 'None',
+    );
+
+    expect(bioWithNone.hasFamilyType, false);
+    expect(bioWithNone.hasFamilyValues, false);
+    expect(bioWithNone.hasBrothers, false);
+    expect(bioWithNone.hasSisters, false);
+    expect(bioWithNone.displayGotraDevak, '');
+  });
+
+  test('PdfGenerator generates PDF successfully omitting None and empty values', () async {
+    final bioWithNone = BiodataModel(
+      id: '99',
+      fullName: 'Pooja Verma',
+      familyType: 'None',
+      familyValues: 'None',
+      brothersCount: '0',
+      sistersCount: 'None',
+      fatherName: 'None',
+      motherName: 'Smt. Rekha Verma',
+      motherOccupation: 'Homemaker',
+      gotra: 'None',
+      devak: 'None',
+      manglik: 'None',
+      expectations: 'None',
+      templateId: 'royal_gold',
+    );
+
+    final pdfBytes = await PdfGenerator.generateBiodataPdf(bioWithNone);
+    expect(pdfBytes, isNotNull);
+    expect(pdfBytes.isNotEmpty, true);
+  });
 }
+

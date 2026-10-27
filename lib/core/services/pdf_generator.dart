@@ -234,7 +234,7 @@ class PdfGenerator {
                 _cell('Native Place', biodata.nativePlace),
               ]),
 
-              if (biodata.expectations.isNotEmpty) ...[
+              if (BiodataModel.isValuePresent(biodata.expectations)) ...[
                 pw.SizedBox(height: 8),
                 _buildRoyalSectionHeader('PARTNER EXPECTATIONS', primaryColor, goldColor),
                 pw.Padding(
@@ -325,12 +325,12 @@ class PdfGenerator {
 
               _buildFloralSection('Personal Details', [
                 _cell('Date of Birth', biodata.dateOfBirth),
-                _cell('Time & Place', '${biodata.timeOfBirth} ${biodata.placeOfBirth}'.trim()),
-                _cell('Height & Complexion', '${biodata.height} | ${biodata.complexion}'.trim()),
+                _cell('Time & Place', '${biodata.timeOfBirth}${biodata.timeOfBirth.isNotEmpty && biodata.placeOfBirth.isNotEmpty ? ' ' : ''}${biodata.placeOfBirth}'.trim()),
+                _cell('Height & Complexion', '${biodata.height}${biodata.height.isNotEmpty && biodata.complexion.isNotEmpty ? ' | ' : ''}${biodata.complexion}'.trim()),
                 _cell('Blood Group', biodata.bloodGroup),
                 _cell('Marital Status', biodata.maritalStatus),
                 _cell('Mother Tongue', biodata.motherTongue),
-                _cell('Religion / Caste', '${biodata.religion} - ${biodata.caste}'.trim()),
+                _cell('Religion / Caste', '${biodata.religion}${biodata.caste.isNotEmpty ? ' - ${biodata.caste}' : ''}'.trim()),
                 _cell('Gotra / Devak', biodata.displayGotraDevak),
                 _cell('Rashi / Nakshatra', biodata.displayRashiNakshatra),
                 _cell('Manglik / Nadi', biodata.displayManglikNadi),
@@ -408,7 +408,7 @@ class PdfGenerator {
           ),
           pw.Divider(color: primary, thickness: 0.5, height: 6),
           if (topFullWidthItems != null && topFullWidthItems.isNotEmpty) ...[
-            for (final item in topFullWidthItems.where((i) => (i['value'] ?? '').trim().isNotEmpty))
+            for (final item in topFullWidthItems.where((i) => BiodataModel.isValuePresent(i['value'])))
               _buildFullWidthCell(item['label']!, item['value']!),
             pw.SizedBox(height: 2),
           ],
@@ -462,7 +462,7 @@ class PdfGenerator {
                     ),
                     if (biodata.occupation.isNotEmpty || biodata.highestEducation.isNotEmpty)
                       pw.Text(
-                        '${biodata.occupation} | ${biodata.highestEducation}',
+                        '${biodata.occupation}${biodata.occupation.isNotEmpty && biodata.highestEducation.isNotEmpty ? ' | ' : ''}${biodata.highestEducation}',
                         style: const pw.TextStyle(fontSize: 10, color: PdfColors.white),
                       ),
                   ],
@@ -478,7 +478,7 @@ class PdfGenerator {
                 _cell('Complexion', biodata.complexion),
                 _cell('Blood Group', biodata.bloodGroup),
                 _cell('Marital Status', biodata.maritalStatus),
-                _cell('Religion / Caste', '${biodata.religion} - ${biodata.caste}'.trim()),
+                _cell('Religion / Caste', '${biodata.religion}${biodata.caste.isNotEmpty ? ' - ${biodata.caste}' : ''}'.trim()),
                 _cell('Gotra / Devak', biodata.displayGotraDevak),
                 _cell('Rashi / Nakshatra', biodata.displayRashiNakshatra),
                 _cell('Manglik / Nadi', biodata.displayManglikNadi),
@@ -497,14 +497,22 @@ class PdfGenerator {
               ]),
 
               pw.SizedBox(height: 8),
-              _buildModernSection('Family Information', primaryColor, [
-                _cell('Father', '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
-                _cell('Mother', '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
-                if (biodata.hasBrothers) _cell('Brothers', biodata.displayBrothers),
-                if (biodata.hasSisters) _cell('Sisters', biodata.displaySisters),
-                if (biodata.hasFamilyType) _cell('Family Type', biodata.displayFamilyType),
-                if (biodata.hasFamilyValues) _cell('Family Values', biodata.displayFamilyValues),
-              ]),
+              _buildModernSection(
+                'Family Information',
+                primaryColor,
+                [
+                  if (biodata.hasBrothers) _cell('Brothers', biodata.displayBrothers),
+                  if (biodata.hasSisters) _cell('Sisters', biodata.displaySisters),
+                  if (biodata.maternalUncleDetails.isNotEmpty)
+                    _cell('Mama / Uncle', biodata.displayMaternalUncle),
+                  if (biodata.hasFamilyType) _cell('Family Type', biodata.displayFamilyType),
+                  if (biodata.hasFamilyValues) _cell('Family Values', biodata.displayFamilyValues),
+                ],
+                topFullWidthItems: [
+                  _cell("Father's Name", biodata.displayFatherDetails),
+                  _cell("Mother's Name", biodata.displayMotherDetails),
+                ],
+              ),
 
               pw.SizedBox(height: 8),
               _buildModernSection('Contact Details', primaryColor, [
@@ -521,7 +529,12 @@ class PdfGenerator {
     );
   }
 
-  static pw.Widget _buildModernSection(String title, PdfColor color, List<Map<String, String>> items) {
+  static pw.Widget _buildModernSection(
+    String title,
+    PdfColor color,
+    List<Map<String, String>> items, {
+    List<Map<String, String>>? topFullWidthItems,
+  }) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -535,6 +548,11 @@ class PdfGenerator {
           ),
         ),
         pw.Container(height: 1.5, width: 28, color: color, margin: const pw.EdgeInsets.symmetric(vertical: 3)),
+        if (topFullWidthItems != null && topFullWidthItems.isNotEmpty) ...[
+          for (final item in topFullWidthItems.where((i) => BiodataModel.isValuePresent(i['value'])))
+            _buildFullWidthCell(item['label']!, item['value']!),
+          pw.SizedBox(height: 2),
+        ],
         _buildTwoColGrid(items),
       ],
     );
@@ -577,10 +595,10 @@ class PdfGenerator {
 
               _buildTraditionalBox('PERSONAL DETAILS', borderColor, [
                 _cell('Date of Birth', biodata.dateOfBirth),
-                _cell('Birth Time & Place', '${biodata.timeOfBirth} ${biodata.placeOfBirth}'.trim()),
-                _cell('Height & Complexion', '${biodata.height} | ${biodata.complexion}'.trim()),
+                _cell('Birth Time & Place', '${biodata.timeOfBirth}${biodata.timeOfBirth.isNotEmpty && biodata.placeOfBirth.isNotEmpty ? ' ' : ''}${biodata.placeOfBirth}'.trim()),
+                _cell('Height & Complexion', '${biodata.height}${biodata.height.isNotEmpty && biodata.complexion.isNotEmpty ? ' | ' : ''}${biodata.complexion}'.trim()),
                 _cell('Blood Group', biodata.bloodGroup),
-                _cell('Religion / Caste', '${biodata.religion} - ${biodata.caste} (${biodata.subCaste})'.trim()),
+                _cell('Religion / Caste', '${biodata.religion}${biodata.caste.isNotEmpty ? ' - ${biodata.caste}' : ''}${biodata.subCaste.isNotEmpty ? ' (${biodata.subCaste})' : ''}'.trim()),
                 _cell('Gotra / Devak', biodata.displayGotraDevak),
                 _cell('Rashi / Nakshatra', biodata.displayRashiNakshatra),
                 _cell('Manglik / Nadi', biodata.displayManglikNadi),
@@ -656,7 +674,7 @@ class PdfGenerator {
           ),
           pw.Divider(color: borderColor, thickness: 0.5, height: 6),
           if (topFullWidthItems != null && topFullWidthItems.isNotEmpty) ...[
-            for (final item in topFullWidthItems.where((i) => (i['value'] ?? '').trim().isNotEmpty))
+            for (final item in topFullWidthItems.where((i) => BiodataModel.isValuePresent(i['value'])))
               _buildFullWidthCell(item['label']!, item['value']!),
             pw.SizedBox(height: 2),
           ],
@@ -674,7 +692,7 @@ class PdfGenerator {
   }
 
   static pw.Widget _buildFullWidthCell(String label, String value) {
-    if (value.trim().isEmpty) return pw.SizedBox.shrink();
+    if (!BiodataModel.isValuePresent(value)) return pw.SizedBox.shrink();
     return pw.Padding(
       padding: const pw.EdgeInsets.symmetric(vertical: 1.5, horizontal: 2),
       child: pw.Row(
@@ -706,7 +724,7 @@ class PdfGenerator {
   static pw.Widget _buildTwoColGrid(List<Map<String, String>> items) {
     final valid = items.where((i) {
       final v = (i['value'] ?? '').trim();
-      return v.isNotEmpty && v != '|' && v != '/' && v != '()';
+      return BiodataModel.isValuePresent(v);
     }).toList();
 
     return pw.Wrap(

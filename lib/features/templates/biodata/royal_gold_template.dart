@@ -144,10 +144,10 @@ class RoyalGoldTemplate extends StatelessWidget {
             MapEntry('Email Address', biodata.email),
             MapEntry('Native Place', biodata.nativePlace),
           ]),
-          if (biodata.residentialAddress.isNotEmpty)
+          if (BiodataModel.isValuePresent(biodata.residentialAddress))
             _buildFullWidthRow('Address', biodata.residentialAddress),
 
-          if (biodata.expectations.isNotEmpty) ...[
+          if (BiodataModel.isValuePresent(biodata.expectations)) ...[
             const SizedBox(height: 8),
             _buildSectionHeader('PARTNER EXPECTATIONS', primaryColor, gold),
             Padding(
@@ -193,7 +193,7 @@ class RoyalGoldTemplate extends StatelessWidget {
   }
 
   Widget _buildGrid(List<MapEntry<String, String>> items) {
-    final valid = items.where((e) => e.value.trim().isNotEmpty).toList();
+    final valid = items.where((e) => BiodataModel.isValuePresent(e.value)).toList();
     if (valid.isEmpty) return const SizedBox.shrink();
 
     return Padding(
@@ -243,7 +243,7 @@ class RoyalGoldTemplate extends StatelessWidget {
   }
 
   Widget _buildFullWidthRow(String label, String value) {
-    if (value.trim().isEmpty) return const SizedBox.shrink();
+    if (!BiodataModel.isValuePresent(value)) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),

@@ -130,13 +130,16 @@ class VintageTraditionalTemplate extends StatelessWidget {
           const SizedBox(height: 8),
 
           _buildSection('पारिवारिक विवरण (Family Details)', [
-            MapEntry('पिताजी का नाम', '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
-            MapEntry('माताजी का नाम', '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
+            if (BiodataModel.isValuePresent(biodata.displayFatherDetails))
+              MapEntry('पिताजी का नाम', biodata.displayFatherDetails),
+            if (BiodataModel.isValuePresent(biodata.displayMotherDetails))
+              MapEntry('माताजी का नाम', biodata.displayMotherDetails),
             if (biodata.hasBrothers) MapEntry('भाई', biodata.displayBrothers),
             if (biodata.hasSisters) MapEntry('बहन', biodata.displaySisters),
             if (biodata.hasFamilyType) MapEntry('परिवार का प्रकार', biodata.displayFamilyType),
             if (biodata.hasFamilyValues) MapEntry('पारिवारिक संस्कार', biodata.displayFamilyValues),
-            MapEntry('मामा / ननिहाल', biodata.maternalUncleDetails),
+            if (biodata.maternalUncleDetails.isNotEmpty)
+              MapEntry('मामा / ननिहाल', biodata.displayMaternalUncle),
           ], vintageGold, primaryColor),
 
           const SizedBox(height: 8),
@@ -146,7 +149,7 @@ class VintageTraditionalTemplate extends StatelessWidget {
             MapEntry(biodata.primaryContactLabelHindi, biodata.displayPrimaryContact),
             MapEntry(biodata.alternateContactLabelHindi, biodata.displayAlternateContact),
             MapEntry('मूल निवास', biodata.nativePlace),
-          ], vintageGold, primaryColor, fullWidthItem: biodata.residentialAddress.isNotEmpty ? MapEntry('वर्तमान पता', biodata.residentialAddress) : null),
+          ], vintageGold, primaryColor, fullWidthItem: BiodataModel.isValuePresent(biodata.residentialAddress) ? MapEntry('वर्तमान पता', biodata.residentialAddress) : null),
         ],
       ),
     );
@@ -159,8 +162,8 @@ class VintageTraditionalTemplate extends StatelessWidget {
     Color titleCol, {
     MapEntry<String, String>? fullWidthItem,
   }) {
-    final valid = items.where((e) => e.value.trim().isNotEmpty).toList();
-    if (valid.isEmpty && (fullWidthItem == null || fullWidthItem.value.trim().isEmpty)) {
+    final valid = items.where((e) => BiodataModel.isValuePresent(e.value)).toList();
+    if (valid.isEmpty && (fullWidthItem == null || !BiodataModel.isValuePresent(fullWidthItem.value))) {
       return const SizedBox.shrink();
     }
 
@@ -188,9 +191,14 @@ class VintageTraditionalTemplate extends StatelessWidget {
           Wrap(
             spacing: 12,
             runSpacing: 3,
-            children: valid.map((e) {
+            children: valid.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final e = entry.value;
+              final isSingleLast = (valid.length % 2 != 0) && (idx == valid.length - 1);
+              final width = isSingleLast ? 508.0 : 248.0;
+
               return SizedBox(
-                width: 248,
+                width: width,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -221,7 +229,7 @@ class VintageTraditionalTemplate extends StatelessWidget {
               );
             }).toList(),
           ),
-          if (fullWidthItem != null && fullWidthItem.value.trim().isNotEmpty) ...[
+          if (fullWidthItem != null && BiodataModel.isValuePresent(fullWidthItem.value)) ...[
             const SizedBox(height: 3),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,

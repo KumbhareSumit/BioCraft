@@ -139,7 +139,7 @@ class FloralEleganceTemplate extends StatelessWidget {
             MapEntry(biodata.alternateContactLabel, biodata.displayAlternateContact),
             MapEntry('Email', biodata.email),
             MapEntry('Native Place', biodata.nativePlace),
-          ], primaryColor, softRose, fullWidthItem: biodata.residentialAddress.isNotEmpty ? MapEntry('Address', biodata.residentialAddress) : null),
+          ], primaryColor, softRose, fullWidthItem: BiodataModel.isValuePresent(biodata.residentialAddress) ? MapEntry('Address', biodata.residentialAddress) : null),
         ],
       ),
     );
@@ -153,13 +153,10 @@ class FloralEleganceTemplate extends StatelessWidget {
     List<MapEntry<String, String>>? topFullWidthItems,
     MapEntry<String, String>? fullWidthItem,
   }) {
-    final valid = items.where((e) {
-      final v = e.value.trim();
-      return v.isNotEmpty && v != '|' && v != '/';
-    }).toList();
-    final validTop = topFullWidthItems?.where((e) => e.value.trim().isNotEmpty).toList() ?? [];
+    final valid = items.where((e) => BiodataModel.isValuePresent(e.value)).toList();
+    final validTop = topFullWidthItems?.where((e) => BiodataModel.isValuePresent(e.value)).toList() ?? [];
 
-    if (valid.isEmpty && validTop.isEmpty && (fullWidthItem == null || fullWidthItem.value.trim().isEmpty)) {
+    if (valid.isEmpty && validTop.isEmpty && (fullWidthItem == null || !BiodataModel.isValuePresent(fullWidthItem.value))) {
       return const SizedBox.shrink();
     }
 

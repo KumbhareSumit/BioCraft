@@ -181,10 +181,10 @@ class PastelLavenderTemplate extends StatelessWidget {
               MapEntry('Email ID', biodata.email),
               MapEntry('Native Place', biodata.nativePlace),
             ],
-            fullWidthItem: biodata.residentialAddress.isNotEmpty ? MapEntry('Current Address', biodata.residentialAddress) : null,
+            fullWidthItem: BiodataModel.isValuePresent(biodata.residentialAddress) ? MapEntry('Current Address', biodata.residentialAddress) : null,
           ),
 
-          if (biodata.expectations.isNotEmpty) ...[
+          if (BiodataModel.isValuePresent(biodata.expectations)) ...[
             const SizedBox(height: 8),
             Container(
               width: double.infinity,
@@ -237,9 +237,9 @@ class PastelLavenderTemplate extends StatelessWidget {
     List<MapEntry<String, String>>? topFullWidthItems,
     MapEntry<String, String>? fullWidthItem,
   }) {
-    final valid = items.where((e) => e.value.trim().isNotEmpty).toList();
-    final validTop = topFullWidthItems?.where((e) => e.value.trim().isNotEmpty).toList() ?? [];
-    if (valid.isEmpty && validTop.isEmpty && (fullWidthItem == null || fullWidthItem.value.trim().isEmpty)) {
+    final valid = items.where((e) => BiodataModel.isValuePresent(e.value)).toList();
+    final validTop = topFullWidthItems?.where((e) => BiodataModel.isValuePresent(e.value)).toList() ?? [];
+    if (valid.isEmpty && validTop.isEmpty && (fullWidthItem == null || !BiodataModel.isValuePresent(fullWidthItem.value))) {
       return const SizedBox.shrink();
     }
 
