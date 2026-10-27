@@ -212,15 +212,15 @@ class PdfGenerator {
 
               pw.SizedBox(height: 8),
               _buildRoyalSectionHeader('FAMILY BACKGROUND', primaryColor, goldColor),
+              _buildFullWidthCell("Father's Name", biodata.displayFatherDetails),
+              _buildFullWidthCell("Mother's Name", biodata.displayMotherDetails),
               _buildTwoColGrid([
-                _cell("Father's Name", '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
-                _cell("Mother's Name", '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
                 if (biodata.hasBrothers) _cell('Brothers', biodata.displayBrothers),
                 if (biodata.hasSisters) _cell('Sisters', biodata.displaySisters),
+                if (biodata.maternalUncleDetails.isNotEmpty)
+                  _cell('Mama / Uncle', biodata.displayMaternalUncle),
                 if (biodata.hasFamilyType) _cell('Family Type', biodata.displayFamilyType),
                 if (biodata.hasFamilyValues) _cell('Family Values', biodata.displayFamilyValues),
-                if (biodata.maternalUncleDetails.isNotEmpty)
-                  _cell('Mama / Uncle', biodata.maternalUncleDetails),
               ]),
 
               pw.SizedBox(height: 8),
@@ -347,14 +347,23 @@ class PdfGenerator {
                 _cell('Job Location', biodata.workLocation),
               ], primaryColor, softTint),
 
-              _buildFloralSection('Family Background', [
-                _cell("Father's Details", '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
-                _cell("Mother's Details", '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
-                if (biodata.hasBrothers) _cell('Brothers', biodata.displayBrothers),
-                if (biodata.hasSisters) _cell('Sisters', biodata.displaySisters),
-                if (biodata.hasFamilyType) _cell('Family Type', biodata.displayFamilyType),
-                if (biodata.hasFamilyValues) _cell('Family Values', biodata.displayFamilyValues),
-              ], primaryColor, softTint),
+              _buildFloralSection(
+                'Family Background',
+                [
+                  if (biodata.hasBrothers) _cell('Brothers', biodata.displayBrothers),
+                  if (biodata.hasSisters) _cell('Sisters', biodata.displaySisters),
+                  if (biodata.maternalUncleDetails.isNotEmpty)
+                    _cell('Mama / Uncle', biodata.displayMaternalUncle),
+                  if (biodata.hasFamilyType) _cell('Family Type', biodata.displayFamilyType),
+                  if (biodata.hasFamilyValues) _cell('Family Values', biodata.displayFamilyValues),
+                ],
+                primaryColor,
+                softTint,
+                topFullWidthItems: [
+                  _cell("Father's Name", biodata.displayFatherDetails),
+                  _cell("Mother's Name", biodata.displayMotherDetails),
+                ],
+              ),
 
               _buildFloralSection('Contact Information', [
                 _cell('Contact Person', biodata.contactPerson),
@@ -370,7 +379,13 @@ class PdfGenerator {
     );
   }
 
-  static pw.Widget _buildFloralSection(String title, List<Map<String, String>> items, PdfColor primary, PdfColor bg) {
+  static pw.Widget _buildFloralSection(
+    String title,
+    List<Map<String, String>> items,
+    PdfColor primary,
+    PdfColor bg, {
+    List<Map<String, String>>? topFullWidthItems,
+  }) {
     return pw.Container(
       width: double.infinity,
       margin: const pw.EdgeInsets.symmetric(vertical: 4),
@@ -392,6 +407,11 @@ class PdfGenerator {
             ),
           ),
           pw.Divider(color: primary, thickness: 0.5, height: 6),
+          if (topFullWidthItems != null && topFullWidthItems.isNotEmpty) ...[
+            for (final item in topFullWidthItems.where((i) => (i['value'] ?? '').trim().isNotEmpty))
+              _buildFullWidthCell(item['label']!, item['value']!),
+            pw.SizedBox(height: 2),
+          ],
           _buildTwoColGrid(items),
         ],
       ),
@@ -579,14 +599,22 @@ class PdfGenerator {
               ]),
 
               pw.SizedBox(height: 6),
-              _buildTraditionalBox('FAMILY DETAILS', borderColor, [
-                _cell("Father's Name", '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
-                _cell("Mother's Name", '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
-                if (biodata.hasBrothers) _cell('Brothers', biodata.displayBrothers),
-                if (biodata.hasSisters) _cell('Sisters', biodata.displaySisters),
-                if (biodata.hasFamilyType) _cell('Family Type', biodata.displayFamilyType),
-                if (biodata.hasFamilyValues) _cell('Family Values', biodata.displayFamilyValues),
-              ]),
+              _buildTraditionalBox(
+                'FAMILY DETAILS',
+                borderColor,
+                [
+                  if (biodata.hasBrothers) _cell('Brothers', biodata.displayBrothers),
+                  if (biodata.hasSisters) _cell('Sisters', biodata.displaySisters),
+                  if (biodata.maternalUncleDetails.isNotEmpty)
+                    _cell('Mama / Uncle', biodata.displayMaternalUncle),
+                  if (biodata.hasFamilyType) _cell('Family Type', biodata.displayFamilyType),
+                  if (biodata.hasFamilyValues) _cell('Family Values', biodata.displayFamilyValues),
+                ],
+                topFullWidthItems: [
+                  _cell("Father's Name", biodata.displayFatherDetails),
+                  _cell("Mother's Name", biodata.displayMotherDetails),
+                ],
+              ),
 
               pw.SizedBox(height: 6),
               _buildTraditionalBox('CONTACT & ADDRESS', borderColor, [
@@ -604,7 +632,12 @@ class PdfGenerator {
     );
   }
 
-  static pw.Widget _buildTraditionalBox(String title, PdfColor borderColor, List<Map<String, String>> items) {
+  static pw.Widget _buildTraditionalBox(
+    String title,
+    PdfColor borderColor,
+    List<Map<String, String>> items, {
+    List<Map<String, String>>? topFullWidthItems,
+  }) {
     return pw.Container(
       width: double.infinity,
       decoration: pw.BoxDecoration(
@@ -622,6 +655,11 @@ class PdfGenerator {
             ),
           ),
           pw.Divider(color: borderColor, thickness: 0.5, height: 6),
+          if (topFullWidthItems != null && topFullWidthItems.isNotEmpty) ...[
+            for (final item in topFullWidthItems.where((i) => (i['value'] ?? '').trim().isNotEmpty))
+              _buildFullWidthCell(item['label']!, item['value']!),
+            pw.SizedBox(height: 2),
+          ],
           _buildTwoColGrid(items),
         ],
       ),
@@ -635,6 +673,36 @@ class PdfGenerator {
     return {'label': label, 'value': value};
   }
 
+  static pw.Widget _buildFullWidthCell(String label, String value) {
+    if (value.trim().isEmpty) return pw.SizedBox.shrink();
+    return pw.Padding(
+      padding: const pw.EdgeInsets.symmetric(vertical: 1.5, horizontal: 2),
+      child: pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.SizedBox(
+            width: 95,
+            child: pw.Text(
+              label,
+              style: pw.TextStyle(
+                fontSize: 8.5,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColor.fromInt(0xFF444444),
+              ),
+            ),
+          ),
+          pw.Text(': ', style: const pw.TextStyle(fontSize: 8.5)),
+          pw.Expanded(
+            child: pw.Text(
+              value,
+              style: const pw.TextStyle(fontSize: 8.5),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   static pw.Widget _buildTwoColGrid(List<Map<String, String>> items) {
     final valid = items.where((i) {
       final v = (i['value'] ?? '').trim();
@@ -644,9 +712,14 @@ class PdfGenerator {
     return pw.Wrap(
       spacing: 12,
       runSpacing: 2,
-      children: valid.map((item) {
+      children: valid.asMap().entries.map((entry) {
+        final idx = entry.key;
+        final item = entry.value;
+        final isSingleLast = (valid.length % 2 != 0) && (idx == valid.length - 1);
+        final width = isSingleLast ? 512.0 : 250.0;
+
         return pw.Container(
-          width: 250,
+          width: width,
           child: pw.Row(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [

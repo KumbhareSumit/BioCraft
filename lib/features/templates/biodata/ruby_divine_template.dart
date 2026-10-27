@@ -129,16 +129,16 @@ class RubyDivineTemplate extends StatelessWidget {
 
             // Section 3: Family Details
             _buildSectionBanner('FAMILY BACKGROUND', rubyPrimary, goldAccent),
+            _buildFullWidthRow("Father's Name", biodata.displayFatherDetails),
+            _buildFullWidthRow("Mother's Name", biodata.displayMotherDetails),
             _buildGrid([
-              MapEntry("Father's Name", '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
-              MapEntry("Mother's Name", '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
               if (biodata.hasBrothers) MapEntry('Brothers', biodata.displayBrothers),
               if (biodata.hasSisters) MapEntry('Sisters', biodata.displaySisters),
+              if (biodata.maternalUncleDetails.isNotEmpty)
+                MapEntry('Mama / Uncle', biodata.displayMaternalUncle),
               if (biodata.hasFamilyType) MapEntry('Family Type', biodata.displayFamilyType),
               if (biodata.hasFamilyValues) MapEntry('Family Values', biodata.displayFamilyValues),
             ]),
-            if (biodata.maternalUncleDetails.isNotEmpty)
-              _buildFullWidthRow('Maternal Uncle (Mama)', biodata.maternalUncleDetails),
 
             const SizedBox(height: 8),
 
@@ -217,16 +217,21 @@ class RubyDivineTemplate extends StatelessWidget {
       child: Wrap(
         spacing: 12,
         runSpacing: 4,
-        children: valid.map((e) {
+        children: valid.asMap().entries.map((entry) {
+          final idx = entry.key;
+          final item = entry.value;
+          final isSingleLast = (valid.length % 2 != 0) && (idx == valid.length - 1);
+          final width = isSingleLast ? 508.0 : 248.0;
+
           return SizedBox(
-            width: 248,
+            width: width,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
                   width: 95,
                   child: Text(
-                    e.key,
+                    item.key,
                     style: GoogleFonts.outfit(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -237,7 +242,7 @@ class RubyDivineTemplate extends StatelessWidget {
                 const Text(' :  ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey)),
                 Expanded(
                   child: Text(
-                    e.value,
+                    item.value,
                     style: GoogleFonts.outfit(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -257,7 +262,7 @@ class RubyDivineTemplate extends StatelessWidget {
     if (value.trim().isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

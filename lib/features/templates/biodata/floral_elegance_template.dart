@@ -113,14 +113,23 @@ class FloralEleganceTemplate extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          _buildSection('Family Details', [
-            MapEntry("Father's Name", '${biodata.fatherName}${biodata.fatherOccupation.isNotEmpty ? ' (${biodata.fatherOccupation})' : ''}'.trim()),
-            MapEntry("Mother's Name", '${biodata.motherName}${biodata.motherOccupation.isNotEmpty ? ' (${biodata.motherOccupation})' : ''}'.trim()),
-            if (biodata.hasBrothers) MapEntry('Brothers', biodata.displayBrothers),
-            if (biodata.hasSisters) MapEntry('Sisters', biodata.displaySisters),
-            if (biodata.hasFamilyType) MapEntry('Family Type', biodata.displayFamilyType),
-            if (biodata.hasFamilyValues) MapEntry('Family Values', biodata.displayFamilyValues),
-          ], primaryColor, softRose, fullWidthItem: biodata.maternalUncleDetails.isNotEmpty ? MapEntry('Mama / Uncle', biodata.maternalUncleDetails) : null),
+          _buildSection(
+            'Family Details',
+            [
+              if (biodata.hasBrothers) MapEntry('Brothers', biodata.displayBrothers),
+              if (biodata.hasSisters) MapEntry('Sisters', biodata.displaySisters),
+              if (biodata.maternalUncleDetails.isNotEmpty)
+                MapEntry('Mama / Uncle', biodata.displayMaternalUncle),
+              if (biodata.hasFamilyType) MapEntry('Family Type', biodata.displayFamilyType),
+              if (biodata.hasFamilyValues) MapEntry('Family Values', biodata.displayFamilyValues),
+            ],
+            primaryColor,
+            softRose,
+            topFullWidthItems: [
+              MapEntry("Father's Name", biodata.displayFatherDetails),
+              MapEntry("Mother's Name", biodata.displayMotherDetails),
+            ],
+          ),
 
           const SizedBox(height: 8),
 
@@ -141,14 +150,16 @@ class FloralEleganceTemplate extends StatelessWidget {
     List<MapEntry<String, String>> items,
     Color primary,
     Color bg, {
+    List<MapEntry<String, String>>? topFullWidthItems,
     MapEntry<String, String>? fullWidthItem,
   }) {
     final valid = items.where((e) {
       final v = e.value.trim();
       return v.isNotEmpty && v != '|' && v != '/';
     }).toList();
+    final validTop = topFullWidthItems?.where((e) => e.value.trim().isNotEmpty).toList() ?? [];
 
-    if (valid.isEmpty && (fullWidthItem == null || fullWidthItem.value.trim().isEmpty)) {
+    if (valid.isEmpty && validTop.isEmpty && (fullWidthItem == null || fullWidthItem.value.trim().isEmpty)) {
       return const SizedBox.shrink();
     }
 
@@ -178,19 +189,17 @@ class FloralEleganceTemplate extends StatelessWidget {
             ],
           ),
           const Divider(thickness: 0.8, height: 10),
-          Wrap(
-            spacing: 12,
-            runSpacing: 4,
-            children: valid.map((e) {
-              return SizedBox(
-                width: 248,
+          if (validTop.isNotEmpty) ...[
+            for (final item in validTop)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
                       width: 95,
                       child: Text(
-                        e.key,
+                        item.key,
                         style: GoogleFonts.outfit(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -201,7 +210,7 @@ class FloralEleganceTemplate extends StatelessWidget {
                     const Text(': ', style: TextStyle(fontSize: 11, color: Colors.grey)),
                     Expanded(
                       child: Text(
-                        e.value,
+                        item.value,
                         style: GoogleFonts.outfit(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -211,9 +220,51 @@ class FloralEleganceTemplate extends StatelessWidget {
                     ),
                   ],
                 ),
-              );
-            }).toList(),
-          ),
+              ),
+            const SizedBox(height: 2),
+          ],
+          if (valid.isNotEmpty)
+            Wrap(
+              spacing: 12,
+              runSpacing: 4,
+              children: valid.asMap().entries.map((entry) {
+                final idx = entry.key;
+                final item = entry.value;
+                final isSingleLast = (valid.length % 2 != 0) && (idx == valid.length - 1);
+                final width = isSingleLast ? 508.0 : 248.0;
+
+                return SizedBox(
+                  width: width,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 95,
+                        child: Text(
+                          item.key,
+                          style: GoogleFonts.outfit(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF555555),
+                          ),
+                        ),
+                      ),
+                      const Text(': ', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                      Expanded(
+                        child: Text(
+                          item.value,
+                          style: GoogleFonts.outfit(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
           if (fullWidthItem != null && fullWidthItem.value.trim().isNotEmpty) ...[
             const SizedBox(height: 3),
             Row(

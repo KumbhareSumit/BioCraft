@@ -239,6 +239,61 @@ class BiodataModel {
     return '$familyValues Values';
   }
 
+  static String _formatNameTitle(String text) {
+    if (text.trim().isEmpty) return '';
+    final words = text.trim().split(RegExp(r'\s+'));
+    return words.map((w) {
+      final lower = w.toLowerCase();
+      if (lower == 'shri' || lower == 'shree') return 'Shri';
+      if (lower == 'smt' || lower == 'smt.') return 'Smt.';
+      if (lower == 'mr' || lower == 'mr.') return 'Mr.';
+      if (lower == 'mrs' || lower == 'mrs.') return 'Mrs.';
+      if (lower == 'dr' || lower == 'dr.') return 'Dr.';
+      if (w.length <= 1) return w.toUpperCase();
+      return w[0].toUpperCase() + w.substring(1);
+    }).join(' ');
+  }
+
+  static String _formatOccupation(String text) {
+    var occ = text.trim();
+    if (occ.isEmpty) return '';
+    if (occ.startsWith('(') && occ.endsWith(')')) {
+      occ = occ.substring(1, occ.length - 1).trim();
+    }
+    final lower = occ.toLowerCase();
+    if (lower == 'homemaker' || lower == 'housewife' || lower == 'house wife') {
+      return 'Homemaker';
+    }
+    if (lower == 'government' || lower == 'govt') {
+      return 'Govt. Employee';
+    }
+    if (lower == 'private') {
+      return 'Private Sector';
+    }
+    if (occ.length <= 1) return occ.toUpperCase();
+    return occ[0].toUpperCase() + occ.substring(1);
+  }
+
+  String get displayFatherDetails {
+    final name = _formatNameTitle(fatherName);
+    final occ = _formatOccupation(fatherOccupation);
+    if (name.isEmpty && occ.isEmpty) return '';
+    if (name.isNotEmpty && occ.isNotEmpty) return '$name ($occ)';
+    return name.isNotEmpty ? name : occ;
+  }
+
+  String get displayMotherDetails {
+    final name = _formatNameTitle(motherName);
+    final occ = _formatOccupation(motherOccupation);
+    if (name.isEmpty && occ.isEmpty) return '';
+    if (name.isNotEmpty && occ.isNotEmpty) return '$name ($occ)';
+    return name.isNotEmpty ? name : occ;
+  }
+
+  String get displayMaternalUncle {
+    return _formatNameTitle(maternalUncleDetails);
+  }
+
   String get primaryContactLabel {
     final type = contactType.trim();
     if (type.contains("Father")) return "Father's Mobile";
